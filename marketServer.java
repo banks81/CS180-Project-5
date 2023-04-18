@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +10,10 @@ public class marketServer {
     public static ArrayList<Store> storesList = new ArrayList<>(); //arrayList of stores in the marketplace
     public static ArrayList<Products> productsList = new ArrayList<>();
     public static ArrayList<String> customerTempCart = new ArrayList<>();
+    public static Products productString(String strings) {
+        String[] stringsplit = strings.split(";;");
+        return(new Products(stringsplit[0], Double.parseDouble(stringsplit[4]), Integer.parseInt(stringsplit[3]), stringsplit[1], 0, stringsplit[2],0 ));
+    }
     public static void readFile() {
         File users = new File("UsersList.txt");
         try {
@@ -280,7 +285,9 @@ public class marketServer {
             StringBuilder searchResult = new StringBuilder();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
             readFile();
             User[] currentUser = new User[1];
@@ -292,6 +299,7 @@ public class marketServer {
                     for (User users : customersList) {
                         if (users.getEmail().equals(email) && users.getPassword().equals(password)) {
                             writer.println("CUSTOMER");
+                            writer.flush();
                             currentUser[0] = (Customer) users;
                             userExists = true;
                             break;
@@ -301,6 +309,7 @@ public class marketServer {
                         for (User users : sellersList) {
                             if (users.getEmail().equals(email) && users.getPassword().equals(password)) {
                                 writer.println("SELLER");
+                                writer.flush();
                                 currentUser[0]  = (Seller) users;
                                 userExists = true;
                                 break;
@@ -308,6 +317,8 @@ public class marketServer {
                         }
                     }
                     if (!userExists) {
+                        writer.println("NO USER");
+                        writer.flush();
                         if (reader.readLine().equals("NO")) {
                             serverSocket.close();
                             return;
@@ -318,19 +329,22 @@ public class marketServer {
                 int type = Integer.parseInt(reader.readLine());
                 String name = reader.readLine();
                 String email = reader.readLine();
-                String password = reader.readLine();
-                if (doesEmailExist(email)) {
-                    while (doesEmailExist(email)) {
-                        if (reader.readLine().equals("NO")) {
-                            serverSocket.close();
-                            return;
-                        }
-                        email = reader.readLine();
-                    }
-                } else {
-                    writer.println("EMAIL SUCCESS");
+                while (doesEmailExist(email)) {
+                    writer.println("ERROR");
                     writer.flush();
+                    if (reader.readLine().equals("NO")) {
+                        writer.close();
+                        reader.close();
+                        ois.close();
+                        oos.close();
+                        serverSocket.close();
+                        return;
+                    }
+                    email = reader.readLine();
                 }
+                writer.println("SUCCESS");
+                writer.flush();
+                String password = reader.readLine();
                 if (type == 1) {
                     currentUser[0] = new Customer(email, name, password);
                 } else {
@@ -353,7 +367,12 @@ public class marketServer {
                         case 1:    //view/edit your acc
                             boolean editAcc = true;
                             do {
-                                writer.println(String.format("%s,%s,%s", current.getName(), current.getEmail(), current.getPassword()));
+                                writer.println(current.getName());
+                                writer.flush();
+                                writer.println(current.getEmail());
+                                writer.flush();
+                                writer.println(current.getPassword());
+                                writer.flush();
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1:
                                         current.setName(reader.readLine());
@@ -363,12 +382,14 @@ public class marketServer {
                                             String email = reader.readLine();
                                             if (doesEmailExist(email)) {
                                                 writer.println("ERROR");
+                                                writer.flush();
                                                 if (reader.readLine().equals("NO")) {
                                                     break;
                                                 }
                                             } else {
                                                 current.setEmail(email);
                                                 writer.println("SUCCESS");
+                                                writer.flush();
                                                 break;
                                             }
                                         } while (true);
@@ -383,6 +404,25 @@ public class marketServer {
                                         editAcc = false;
                                 }
                             } while (editAcc);
+                            break;
+                            //expects:
+                            /**
+                             * 1. Integer for choice prompt from 1~5
+                             * 1-1 :: change name
+                             *        String of name
+                             * 1-2 :: change email
+                             *        String of email
+                             *        passes 2 :: if user decides not to continue, NO
+                             * 1-3 :: change password
+                             *        String of password
+                             * everything else does not require additional prompts
+                             * **/
+                            //passes:
+                            /**
+                             * 1. string formatted "%s,%s,%s" for name, email, password of current user
+                             * 2. expects 1-2:: if email exists, ERROR
+                             *                  if email does not exist, SUCCESS
+                             * **/
                         case 2:
                             boolean marketPlace = true;
                             //view farmers market
@@ -400,11 +440,10 @@ public class marketServer {
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1:
                                         for (Products product : productsList) {
-                                            writer.println(String.format("%s;;%s;;%s;;%d;;%.2f", product.getName(),
-                                                    product.getStoreName(), product.getDescription(), product.getQuantity(),
-                                                    product.getPrice()));
+                                            oos.writeObject(product);
                                         }
-                                        writer.println("END OF PRODUCTS");
+                                        writer.println("END");
+                                        writer.flush();
                                         int marketChoice = Integer.parseInt(reader.readLine()); //assuming it will be given from 1, not index zero
                                         if (marketChoice <= productsList.size()) {
                                             Products productOfChoice = productsList.get(marketChoice - 1);  //They already have name, storename, description, quantity and price
@@ -420,8 +459,15 @@ public class marketServer {
                                                     break;
                                                 case 2:
                                                     int quantity = Integer.parseInt(reader.readLine());
-                                                    productOfChoice.setQuantity(productOfChoice.getQuantity() - quantity);
-                                                    productOfChoice.setSales(productOfChoice.getSales() + quantity);
+                                                    if (productOfChoice.getQuantity() > quantity) {
+                                                        productOfChoice.setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productOfChoice.setSales(productOfChoice.getSales() + quantity);
+                                                        writer.println("SUCCESS");
+                                                        writer.flush();
+                                                    } else {
+                                                        writer.println("ERROR");
+                                                        writer.flush();
+                                                    }
                                                     break;
                                                 default:
                                                     break;
@@ -431,6 +477,20 @@ public class marketServer {
                                             return;
                                         }
                                         break;
+                                        //expects:
+                                        /**
+                                         * 1. integer from n ~ no. of products + 2
+                                         *  1-1 :: if index from n ~ no. of products
+                                         *      - integer from 1~3
+                                         *      1-1-2 :: if customer desires to purchase it now
+                                         *          - integer for quantity
+                                         * **/
+                                        //passes:
+                                        /**
+                                         * 1. n products using ObjectOutputStream
+                                         * 2. END for end of products
+                                         * 3. expects 1-1-2 :: SUCCESS or ERROR depending on the quantity of the product
+                                         * **/
                                     case 2:    //searchProducts
                                         do {
                                             String keyword = reader.readLine();
@@ -445,15 +505,15 @@ public class marketServer {
                                             if (!searchResults.isEmpty()) {
                                                 for (Products foundProduct : searchResults) {
                                                     writer.println(foundProduct.getName());
+                                                    writer.flush();
                                                 }
-                                                writer.println("END OF PRODUCTS");
+                                                writer.println("END");
+                                                writer.flush();
                                                 int searchIndex = Integer.parseInt(reader.readLine());
                                                 do {
                                                     if (searchIndex <= searchResults.size()) {
                                                         Products product = searchResults.get(searchIndex - 1);
-                                                        writer.println(String.format("%s;;%s;;%s;;%d;;%.2f", product.getName(),
-                                                                product.getStoreName(), product.getDescription(), product.getQuantity(),
-                                                                product.getPrice()));
+                                                        oos.writeObject(product);
                                                         switch (Integer.parseInt(reader.readLine())) {
                                                             case 1:
                                                                 current.addToShoppingCart(product, 1);
@@ -465,9 +525,12 @@ public class marketServer {
                                                                     if (product.getQuantity() >= quantity) {
                                                                         product.setQuantity(product.getQuantity() - quantity);
                                                                         writer.println("SUCCESS");  //is in stock
+                                                                        writer.flush();
                                                                         break;
                                                                     } else {
-                                                                        writer.println("FAILURE"); //out of stock, assuming that the user does not get to back out
+                                                                        writer.println("FAILED"); //out of stock, assuming that the user does not get to back out
+                                                                        writer.flush();
+
                                                                     }
                                                                 } while (true);
                                                             default:
@@ -478,12 +541,36 @@ public class marketServer {
                                                 } while (true);
                                             } else {
                                                 writer.println("NO SEARCH RESULTS");
+                                                writer.flush();
                                             }
                                             if (!reader.readLine().equals("YES")) {
                                                 break;
                                             }
                                         } while (true);
                                         break;
+                                        //expects:
+                                        /**
+                                         * 1. String keyword for search prompt
+                                         *
+                                         * Passes 1-1 :: should the search result exist
+                                         * 2. integer of index for product the user desires to get details of
+                                         * 3. integer of choice among 1~3
+                                         *  3-2 :: should the customer decide to purchase right now
+                                         *      - integer for quantity of purchase
+                                         * **/
+                                        //passes:
+                                        /**
+                                         * 1-1 :: search results exist:
+                                         *  - n product names in String!
+                                         *  - END for end of products
+                                         *      1-1-1 :: user chooses a product
+                                         *          - Products of given integer using ObjectOutputStream
+                                         *          expects 3-2 :: user purchases a product
+                                         *          - SUCCESS if product is in stock
+                                         *          - FAILED if product is not in stock
+                                         * 1-2 :: search result == null:
+                                         *  - NO SEARCH RESULTS passed
+                                         * **/
                                     case 3:
                                         ArrayList<Products> tempArr = new ArrayList<>();
                                         double min;
@@ -528,15 +615,45 @@ public class marketServer {
                                     case 5:
                                         for (String pastPurchases : current.getPastPurchase()) {
                                             writer.println(pastPurchases.split(",")[0]);
+                                            writer.flush();
                                         }
-                                        writer.println("END OF PRODUCTS");
+                                        writer.println("END");
+                                        writer.flush();
                                         break;
+                                        //passes:
+                                        /**
+                                         * 1. n String of products' name
+                                         * 2. END for end of products
+                                         * **/
                                     case 6:
                                         for (Products cartItem : current.getShoppingCart()) {
-                                            writer.println(String.format("%s;;%s;;%.2f", cartItem.getName(),
-                                                    cartItem.getDescription(), cartItem.getPrice()));
+                                            oos.writeObject(cartItem);
                                         }
-                                        writer.println("END OF PRODUCTS");
+                                        writer.println("END");
+                                        writer.flush();
+                                        //passes:
+                                        /**
+                                         * 1. n Products using ObjectOutputStream
+                                         * 2. String END
+                                         * so I kinda thought about this
+                                         *
+                                         * in client side:
+                                         * ArrayList<Products> productListTemp = new ArrayList<>();
+                                         * do {
+                                         *     try {
+                                         *         Object o = ois.readObject();
+                                         *         String exitLine = (String) o;
+                                         *         if (existLine.equals("END") {
+                                         *             break;
+                                         *         } else {
+                                         *             productListTemp.add((Products) o);
+                                         *         }
+                                         *     } catch(Exception e) {
+                                         *         break;
+                                         *     }
+                                         * } while(true);
+                                         * **/
+
                                         /**
                                          * What would you like to do?
                                          * 1. Purchase cart
@@ -554,24 +671,49 @@ public class marketServer {
                                                         current.removeFromShoppingCart(cartItem);
                                                         current.addProducts(cartItem.getName(), 1);
                                                     } else {
-                                                        current.shoppingCartChangeHelper(cartItem.getName(), 1);
-                                                        //TODO: Discuss how we will deal with multiple error messages with GUI
+                                                        writer.println(cartItem.getName());
+                                                        writer.flush();
                                                     }
                                                 }
                                                 writer.println("SUCCESS");
+                                                writer.flush();
                                                 break;
+                                                //passes:
+                                                /**
+                                                 * 1. if some products are out of stock, this passes n Strings of products' name
+                                                 * 2. SUCCESS
+                                                 *
+                                                 * StringBuilder failedItems = new StringBuilder();
+                                                 * do {
+                                                 *     String potentialFailure = reader.readLine();
+                                                 *     if (potentialFailure.equals("SUCCESS")) {
+                                                 *         break;
+                                                 *     } else {
+                                                 *         failedItems.append(potentialFailure);
+                                                 *         failedItems.append(", ");
+                                                 *     }
+                                                 * } while(true);
+                                                 * ...
+                                                 * if (!failedItems.isempty()) {
+                                                 *     failedItems.delete(failedItems.length() - 2, failedItems.length());
+                                                 *     String errorMessage = String.format("The items %s is out of stock.", failedItems.toString());
+                                                 *     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
+                                                 * }
+                                                 * **/
                                             case 2:
-                                                do {
-                                                    int indexNo = Integer.parseInt(reader.readLine());
-                                                    if (indexNo <= current.getShoppingCart().size()) {
-                                                        current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
-                                                        writer.println("SUCCESS");
-                                                        break;
-                                                    } else {
-                                                        writer.println("ERROR");    //TODO: PROMPT USER TO ENTER NO. AGAIN
-                                                    }
-                                                } while (true);
+                                                int indexNo = Integer.parseInt(reader.readLine()) - 1;
+                                                current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
+                                                writer.println("SUCCESS");
+                                                writer.flush();
                                                 break;
+                                                //expects:
+                                                /**
+                                                 * 1. integer index for deleting product
+                                                 * **/
+                                                //passes:
+                                                /**
+                                                 * 1. SUCCESS
+                                                 * **/
                                             default:
                                                 break;
                                         }
@@ -608,6 +750,7 @@ public class marketServer {
                             do {
                                 writer.println(String.format("%s,%s,%s", current.getName(), current.getEmail(),
                                         current.getPassword()));
+                                writer.flush();
                                 /**
                                  * 1. Edit your name
                                  * 2. Edit your email
@@ -615,13 +758,288 @@ public class marketServer {
                                  * 4. Delete your account
                                  * 5. Return to main menu
                                  * **/
-                                switch
+                                switch (Integer.parseInt(reader.readLine())) {
+                                    case 1 :
+                                        current.setName(reader.readLine());
+                                        writer.println("SUCCESS");
+                                        writer.flush();
+                                        break;
+                                    case 2 :
+                                        do {
+                                            String newEmail = reader.readLine();
+                                            if (doesEmailExist(newEmail)) {
+                                                writer.println("FAILED");
+                                                writer.flush();
+                                            } else {
+                                                current.setEmail(newEmail);
+                                                writer.println("SUCCESS");
+                                                writer.flush();
+                                                break;
+                                            }
+                                        } while(true);
+                                        break;
+                                    case 3 :
+                                        current.setPassword(reader.readLine());
+                                        writer.println("SUCCESS");
+                                        writer.flush();
+                                        break;
+                                    case 4 :
+                                        sellersList.remove((User) current);
+                                        serverSocket.close();
+                                        editAcc = false;
+                                        mainmenu = false;
+                                        break;
+                                    case 5 :
+                                        editAcc = false;
+                                        break;
+                                }
                             } while (editAcc);
+                        case 2 :    //view farmer's market
+                            /**
+                             * 1. View booths
+                             * 2. Add booth
+                             * 3. Edit booth
+                             * 4. Remove booth
+                             * 5. Go back
+                             * **/
+                            boolean marketMenu = true;
+                            do {
+                                switch (Integer.parseInt(reader.readLine())) {
+                                    case 1: //1. View booths
+                                        for (Store storeInList : current.getStore()) {
+                                            writer.println(storeInList.getName());
+                                            writer.flush();
+                                        }
+                                        writer.println("END");
+                                        writer.flush();
+                                        Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()));
+                                        /**
+                                         * 1. View products
+                                         * 2. View sales
+                                         * 3. Add product
+                                         * 4. Edit product
+                                         * 5. Remove product
+                                         * 6. Import product csv file
+                                         * 7. Export product csv file
+                                         * 8. Go back
+                                         * **/
+                                        boolean boothmenu = true;
+                                        do {
+                                            switch (Integer.parseInt(reader.readLine())) {
+                                                case 1 :    //1. View products
+                                                    for (Products productInStore : currentStore.getGoods()) {
+                                                        oos.writeObject(productInStore);
+                                                    }
+                                                    writer.println("END OF PRODUCTS");
+                                                    writer.flush();
+                                                    break;
+                                                case 2 :    //2. View sales
+                                                    writer.println(String.format("%d", currentStore.getSales()));
+                                                    writer.flush();
+                                                    break;
+                                                case 3 :    //3. Add product
+                                                    boolean productImport = true;
+                                                    while (productImport) {
+                                                        if (reader.readLine().equals("END OF PRODUCT")) {
+                                                            productImport = false;
+                                                            break;
+                                                        } else {    //product in %s;;%s;;%s;;%d;;%.2f format
+                                                            String newProduct = reader.readLine();
+                                                            currentStore.addGoods(productString(newProduct));
+                                                        }
+                                                    }
+                                                    break;
+                                                case 4 :    //4. Edit product
+                                                    for (Products products : currentStore.getGoods()) {
+                                                        writer.println(products.getName());
+                                                        writer.flush();
+                                                    }
+                                                    writer.println("END");
+                                                    writer.flush();
+                                                    Integer index = Integer.parseInt(reader.readLine()) - 1;
+                                                    Products editingProduct = currentStore.getGoods().get(index);
+                                                    if (ois.readBoolean()) {    //if changing name
+                                                        editingProduct.setName(reader.readLine());
+                                                    }
+                                                    if (ois.readBoolean()) {    //if changing description
+                                                        editingProduct.setDescription(reader.readLine());
+                                                    }
+                                                    if (ois.readBoolean()) {    //if changing price
+                                                        editingProduct.setPrice(Double.parseDouble(reader.readLine()));
+                                                    }
+                                                    if (ois.readBoolean()) {    //if changing quantity
+                                                        editingProduct.setQuantity(Integer.parseInt(reader.readLine()));
+                                                    }
+                                                    break;
+                                                    //expects:
+                                                    /**
+                                                     * 1. integer value of index for product desired to edit(from 1~n)
+                                                     * 2. total of 4 boolean values, potentially followed by valid* data
+                                                     *      input validation expected from the client side!
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * 1. n values of product names
+                                                     * 2. END
+                                                     * **/
+                                                case 5 :    //5. Remove product
+                                                    for (Products products : currentStore.getGoods()) {
+                                                        writer.println(products.getName());
+                                                        writer.flush();
+                                                    }
+                                                    writer.println("END");
+                                                    writer.flush();
+                                                    index = Integer.parseInt(reader.readLine()) - 1;
+                                                    ArrayList<Products> newList = currentStore.getGoods();
+                                                    newList.remove(newList.get(index));
+                                                    currentStore.setGoods(newList);
+                                                    break;
+                                                    //expects:
+                                                    /**
+                                                     * integer value of index for product desired to delete(from 1~n)
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * 1. n values of product names
+                                                     * 2. END
+                                                     * **/
+                                                case 6 :    //6. Import product csv file
+                                                    boolean success = true;
+                                                    do {
+                                                        try {
+                                                            Object o = ois.readObject();
+                                                            if (o.getClass() == String.class) {
+                                                                break;
+                                                            } else if (o.getClass() == Products.class) {
+                                                                currentStore.addGoods((Products) o);
+                                                            }
+                                                        } catch (ClassNotFoundException e) {
+                                                            success = false;
+                                                            break;
+                                                        }
+                                                    } while(true);
+                                                    if (success) {
+                                                        writer.println("SUCCESS");
+                                                    } else {
+                                                        writer.println("ERROR");
+                                                    }
+                                                    writer.flush();
+                                                    break;
+                                                    //expects:
+                                                    /**
+                                                     * 1. n Products using ObjectInputStream
+                                                     * 2. END prompt from the client
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * if all products file is imported successfully : SUCCESS
+                                                     * else : ERROR
+                                                     * **/
+                                                case 7 :    //7. Export product csv file
+                                                    String fileName = reader.readLine();
+                                                    if (!fileName.contains(".csv")) {
+                                                        fileName = fileName + ".csv";
+                                                    }
+                                                    try {
+                                                        writeProductFile(fileName, currentStore);
+                                                        writer.println("SUCCESS");
+                                                        writer.flush();
+                                                    } catch (Exception e) {
+                                                        writer.println("ERROR");
+                                                        writer.flush();
+                                                    }
+                                                    break;
+                                                    //expects
+                                                    /**
+                                                     * desired file name. Are we expecting csv ending? if not...
+                                                     * **/
+                                                    //passes
+                                                    /**
+                                                     * if file written successful : SUCCESS
+                                                     * else : ERROR
+                                                     * **/
+                                                case 8 :    //8. Go back
+                                                    boothmenu = false;
+                                                    break;
+                                            }
+                                        } while(boothmenu);
+                                    case 2: //2. Add booth
+                                        String storeName = reader.readLine();
+                                        current.addStore(new Store(storeName, current.getName(), current.getEmail()));
+                                        break;
+                                        //expects: a store name(String)
+                                    case 3: //3. Edit booth
+                                        if (current.getStore().isEmpty()) {
+                                            writer.println("EMPTY");
+                                            writer.flush();
+                                        } else {
+                                            writer.println("NOT EMPTY");
+                                            writer.flush();
+                                            for (Store store : current.getStore()) {
+                                                writer.println(store.getName());
+                                                writer.flush();
+                                            }
+                                            writer.println("END");
+                                            writer.flush();
+                                            int index = Integer.parseInt(reader.readLine()) - 1;
+                                            current.getStore().get(index).setName(reader.readLine());
+                                        }
+                                        break;
+                                        //expects:
+                                        /**
+                                         * 1. integer index of store
+                                         * 2. String of new name for store
+                                         * **/
+                                        //passes:
+                                        /**
+                                         * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
+                                         * ----below are for if NOT EMPTY is passed----
+                                         * 2. n String of storeNames
+                                         * 3. END for end of stores
+                                         * **/
+                                    case 4: //4. Remove booth
+                                        if (!current.getStore().isEmpty()) {
+                                            writer.println("EMPTY");
+                                            writer.flush();
+                                            for (Store store : current.getStore()) {
+                                                writer.println(store.getName());
+                                            }
+                                            writer.println("END");
+                                            writer.flush();
+                                            int index = Integer.parseInt(reader.readLine()) - 1;
+                                            ArrayList<Store> newList = current.getStore();
+                                            newList.remove(index);
+                                            current.setStore(newList);
+                                        } else {
+                                            writer.println("NOT EMPTY");
+                                            writer.flush();
+                                        }
+                                        break;
+                                        //expects:
+                                        /**
+                                         * 1. integer index of store
+                                         * **/
+                                        //passes:
+                                        /**
+                                         * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
+                                         * ----below are for if NOT EMPTY is passed----
+                                         * 2. n String of storeNames
+                                         * 3. END for end of stores
+                                         * **/
+                                    case 5: //5. Go back
+                                        marketMenu = false;
+                                        break;
+                                }
+                            } while(marketMenu);
                     }
-
                 } while(mainmenu);
             }
 
+            serverSocket.close();
+            ois.close();
+            oos.close();
+            reader.close();
+            writer.close();
 
             writeFile();
         } catch (IOException e) {
@@ -642,4 +1060,19 @@ public class marketServer {
         }
         return emailExists;
     }
+    public static void writeProductFile(String fileName, Store store) throws Exception{
+        File file = new File(fileName);
+        try {
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bfw = new BufferedWriter(fw);
+            for (Products good : store.getGoods()){
+                bfw.write(good.getName() + "," + good.getPrice() + "," + good.getQuantity() + "," + good.getDescription() +
+                        "," + good.getSales() + "," + good.getStoreName() + "\n");
+            }
+            bfw.close();
+        } catch (IOException e) {
+            throw new Exception();
+        }
+    }
 }
+
