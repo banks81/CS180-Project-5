@@ -319,12 +319,17 @@ public class marketServer {
                 String name = reader.readLine();
                 String email = reader.readLine();
                 String password = reader.readLine();
-                while (doesEmailExist(email)) {
-                    if (reader.readLine().equals("NO")) {
-                        serverSocket.close();
-                        return;
+                if (doesEmailExist(email)) {
+                    while (doesEmailExist(email)) {
+                        if (reader.readLine().equals("NO")) {
+                            serverSocket.close();
+                            return;
+                        }
+                        email = reader.readLine();
                     }
-                    email = reader.readLine();
+                } else {
+                    writer.println("EMAIL SUCCESS");
+                    writer.flush();
                 }
                 if (type == 1) {
                     currentUser[0] = new Customer(email, name, password);
