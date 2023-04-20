@@ -751,8 +751,11 @@ public class marketServer {
                         case 1 : //1. View/edit your account
                             boolean editAcc = true;
                             do {
-                                writer.println(String.format("%s,%s,%s", current.getName(), current.getEmail(),
-                                        current.getPassword()));
+                                writer.println(current.getName());
+                                writer.flush();
+                                writer.println(current.getEmail());
+                                writer.flush();
+                                writer.println(current.getPassword());
                                 writer.flush();
                                 /**
                                  * 1. Edit your name
