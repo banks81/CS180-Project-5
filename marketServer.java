@@ -441,6 +441,7 @@ public class marketServer {
                                     case 1:
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
+                                            oos.flush();
                                         }
                                         writer.println("END");
                                         writer.flush();
@@ -514,6 +515,7 @@ public class marketServer {
                                                     if (searchIndex <= searchResults.size()) {
                                                         Products product = searchResults.get(searchIndex - 1);
                                                         oos.writeObject(product);
+                                                        oos.flush();
                                                         switch (Integer.parseInt(reader.readLine())) {
                                                             case 1:
                                                                 current.addToShoppingCart(product, 1);
@@ -628,6 +630,7 @@ public class marketServer {
                                     case 6:
                                         for (Products cartItem : current.getShoppingCart()) {
                                             oos.writeObject(cartItem);
+                                            oos.flush();
                                         }
                                         writer.println("END");
                                         writer.flush();
@@ -829,6 +832,7 @@ public class marketServer {
                                                 case 1 :    //1. View products
                                                     for (Products productInStore : currentStore.getGoods()) {
                                                         oos.writeObject(productInStore);
+                                                        oos.flush();
                                                     }
                                                     writer.println("END OF PRODUCTS");
                                                     writer.flush();
@@ -1075,4 +1079,3 @@ public class marketServer {
         }
     }
 }
-
