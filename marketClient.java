@@ -4,65 +4,96 @@ import java.net.*;
 import javax.swing.JOptionPane;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 //GUI is set to pink for pattern recognition
 public class marketClient {
     public static void main(String[] args) throws IOException{
         //declaring variables
         boolean isCustomer = false; //false if a seller, true if a customer
-        boolean mainMenu = false;
+
         String placeholderGUI = ""; //placeholder for where I need GUI input
         Scanner scan = new Scanner(System.in);
 
         try {
             Socket socket = new Socket("localhost", 4242);
+            System.out.println("got past socket");
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("reader");
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            System.out.println("writer");
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("reached end of socket stuff");
+            oos.flush();
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            System.out.println("ois");
 
 
             //PUT IN GUI FOR LOGIN/WHATEVER
             //send either "EXISTING USER" or "NEW USER"
             boolean existingUser = false;
             //here, use GUI to figure out if it's an existing user or they want to create an account
-            boolean foundUser = false;
+            System.out.println("are you an existing user?");
+            if (scan.nextLine().equalsIgnoreCase("yes")) {
+                existingUser = true;
+            } else {
+                existingUser = false;
+            }
+
+            boolean userExists = false;
             if (existingUser) { //user is logging in
                 writer.println("EXISTING USER");
                 writer.flush();
                 do {
-                    String email = "email";       //placeholder
-                    String password = "password"; //placeholder
+                    System.out.println("enter your email");
+                    String email = scan.nextLine();       //placeholder
+                    System.out.println("enter your password");
+                    String password = scan.nextLine(); //placeholder
                     //GUI for entering email
                     //GUI for entering password
                     writer.println(email);
                     writer.flush();
+                    System.out.printf("printed %s to server\n", email);
                     writer.println(password);
                     writer.flush();
+                    System.out.printf("printed %s to server\n", password);
+
                     String checkCust = reader.readLine();
+
                     if (checkCust.equals("CUSTOMER")) {
                         isCustomer = true;
-                        foundUser = true;
+                        userExists = true;
                     } else if (checkCust.equals("SELLER")) {
                         isCustomer = false;
-                        foundUser = true;
-                    } else if (checkCust.equals("NOUSER")) {
-                        foundUser = false;
+                        userExists = true;
+                    } else if (checkCust.equals("NO USER")) {
+                        userExists = false;
                         //GUI for re-entering the username and password
                         System.out.println("No user found! Would you like to try again?");
-                        if (placeholderGUI.equalsIgnoreCase("Don't re-enter password")) {
+                        placeholderGUI = scan.nextLine();
+                        if (placeholderGUI.equalsIgnoreCase("no")) { //no user was found
                             writer.println("NO");
                             writer.flush();
+                            System.out.println("printed NO to server");
+                            //close all
+                            return;
+                        } else {
+                            writer.println("YES");
+                            writer.flush();
+                            System.out.println("printed YES to server");
                         }
                     }
-                } while (!foundUser);
+                } while (!userExists);
 
             } else {
-                writer.write("NEW USER");
+                writer.write("NEW USER"); //this writes to line 302 of the server
                 writer.flush();
+                System.out.println("new user");
                 //if it's a customer, print 1, if not, print 2
                 System.out.println("would you like to join as a customer (1) or seller (2)");
-                placeholderGUI = scan.nextLine();
-                if (Integer.parseInt(placeholderGUI) == 1) {
+                int type = scan.nextInt();
+                scan.nextLine();
+                if (type == 1) {
                     writer.println("1");
                     writer.flush();
                     isCustomer = true;
@@ -72,16 +103,16 @@ public class marketClient {
                     isCustomer = false;
                 }
                 System.out.println("Enter a name"); //use GUI for this all instead
-                placeholderGUI = scan.nextLine();
-                writer.println(placeholderGUI);
+                String name = scan.nextLine();
+                writer.println(name);
                 writer.flush();
                 System.out.println("Enter an email");
-                placeholderGUI = scan.nextLine();
-                writer.println(placeholderGUI);
+                String email = scan.nextLine();
+                writer.println(email);
                 writer.flush();
                 System.out.println("Enter a password");
-                placeholderGUI = scan.nextLine();
-                writer.println(placeholderGUI);
+                String password = scan.nextLine();
+                writer.println(password);
                 writer.flush();
                 boolean emailExists;
                 if (reader.readLine().equals("EMAIL SUCCESS")) { //TODO make this section work better
@@ -111,6 +142,7 @@ public class marketClient {
 
 
             if (isCustomer) {
+                boolean mainMenu = false;
                 mainMenu = true;
                 /**
                  * 1. view / edit your acc
@@ -381,7 +413,7 @@ public class marketClient {
                                             //display You have no past purchases!
                                         }
                                         break;
-                                        
+
                                     case 6: //view your shopping cart
                                         ArrayList<Products> productListTemp = new ArrayList<>();
                                         do {
@@ -416,14 +448,14 @@ public class marketClient {
                                                         notPurchasedItems.append(", ");
                                                     }
                                                 } while (true);
-                                                
+
                                                 if (!notPurchasedItems.isEmpty()) {
-                                                    notPurchasedItems.delete(notPurchasedItems.length() - 2, 
+                                                    notPurchasedItems.delete(notPurchasedItems.length() - 2,
                                                             notPurchasedItems.length());
                                                     String errorMessage = String.format("The items %s is out of stock.",
                                                             notPurchasedItems.toString());
                                                     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
-                                                    //GUI 
+                                                    //GUI
                                                     //  minyhoung coded this JOptionPane but you don't need to use it
                                                     //  pop-ups for each item that was not able to be purchased
                                                 }
@@ -440,38 +472,135 @@ public class marketClient {
                                                 writer.flush();
                                                 reader.readLine(); //this reads the success line from server
                                                 break;
-                                                
+
                                             default: //go back to market menu
                                                 break;
                                         }
                                         break;
-                                        
+
                                     case 7: //go back to the main menu
+                                        marketPlace = false;
+                                        break;
                                     case 8: //quit
-
-
+                                        marketPlace = false;
+                                        mainMenu = false;
+                                        //GUI
+                                        //  a pop-up that says goodbye
+                                        //  i would like to add something in here
+                                        //  for both the server and client
+                                        //  that checks if they actually want to quit
+                                        //  but I'm not editing server right now so I'm not doing that yet
+                                        return; //this ends the program
 
                                 }
 
                             } while (marketPlace);
-
+                        case 3: //quit
+                            socket.close();
+                            //GUI
+                            //  a pop-up that says goodbye
+                            //  i would like to add something in here
+                            //  for both the server and client
+                            //  that checks if they actually want to quit
+                            //  but I'm not editing server right now so I'm not doing that yet
+                            mainMenu = false;
+                            return; //ends program
 
                     }
 
                 } while (mainMenu);
 
-            } else {
-                //SELLER
+            } else { //SELLER
+                boolean mainMenu = true;
+                int menuChoice;
+                do {
+                    /**
+                     * Main Menu
+                     * 1. View/edit your account
+                     * 2. View farmer's market
+                     * 3. Quit
+                     * **/
+                    //GUI
+                    //  for main menu
+                    System.out.println("What would you like to do?");
+                    menuChoice = scan.nextInt();
+                    scan.nextLine();
+                    writer.write(menuChoice);
+                    writer.flush();
+                    switch (menuChoice) {
+                        case 1: //view/edit your account
+                            boolean editAcc = true;
+                            do {
+                                String name = reader.readLine();
+                                String email = reader.readLine();
+                                String password = reader.readLine();
+                                //GUI
+                                //  1. edit your name
+                                //  2. edit your email
+                                //  3. edit your password
+                                //  4. delete your account
+                                //  5. return to main menu
+                                System.out.println("What would you like to do?");
+                                menuChoice = scan.nextInt();
+                                scan.nextLine();
+                                writer.println(menuChoice);
+                                writer.flush();
+                                switch (menuChoice) {
+                                    case 1: //edit your name
+                                        //GUI input
+                                        System.out.println("What would you like to change your name to?");
+                                        name = scan.nextLine();
+                                        writer.println(name);
+                                        writer.flush();
+                                        reader.readLine(); //reads "SUCCESS" from server
+                                        break;
+                                    case 2: //edit your email
+                                        do {
+                                            //GUI input
+                                            System.out.println("what would you like to change your email to?");
+                                            email = scan.nextLine();
+                                            writer.write(email);
+                                            writer.flush();
+                                            String success = reader.readLine();
+                                            if (success.equals("FAILED")) {
+                                                //GUI for That email is already in use! Please try again
+                                            } else {
+                                                break;
+                                            }
+                                        } while (true);
+                                        break;
+                                    case 3:
+                                        //GUI input
+                                        System.out.println("what would you like to change your password to?");
+                                        //maybe have a way to check it's not the same as the current password but idk
+                                        password = scan.nextLine();
+                                        writer.write(password);
+                                        writer.flush();
+
+
+                                }
+
+
+                            } while (editAcc);
+
+
+                    }
+
+
+
+                } while (mainMenu);
+
+
             }
 
 
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("IO Exception");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            System.out.println("Classnotfoundexception");
         }
 
     }
 }
-
-/*
