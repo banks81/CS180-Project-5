@@ -3,6 +3,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class marketServer {
     public static ArrayList<User> customersList = new ArrayList<>();
@@ -281,13 +283,19 @@ public class marketServer {
         try {
             ServerSocket serverSocket = new ServerSocket(4242);
             Socket socket = serverSocket.accept();
+            System.out.println("accepted");
             String searchKeyword;
             StringBuilder searchResult = new StringBuilder();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            System.out.println("bufferedreader");
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
+            System.out.println("writer");
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            System.out.println("ois");
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.flush();
+            System.out.println("got to end of streams");
 
             readFile();
             User[] currentUser = new User[1];
@@ -316,12 +324,14 @@ public class marketServer {
                             }
                         }
                     }
-                    if (!userExists) {
+                    if (!userExists) { //no user was found
                         writer.println("NO USER");
                         writer.flush();
                         if (reader.readLine().equals("NO")) {
                             serverSocket.close();
                             return;
+                        } else {
+                            System.out.println("try again!");
                         }
                     }
                 } while (!userExists);
@@ -405,24 +415,24 @@ public class marketServer {
                                 }
                             } while (editAcc);
                             break;
-                            //expects:
-                            /**
-                             * 1. Integer for choice prompt from 1~5
-                             * 1-1 :: change name
-                             *        String of name
-                             * 1-2 :: change email
-                             *        String of email
-                             *        passes 2 :: if user decides not to continue, NO
-                             * 1-3 :: change password
-                             *        String of password
-                             * everything else does not require additional prompts
-                             * **/
-                            //passes:
-                            /**
-                             * 1. string formatted "%s,%s,%s" for name, email, password of current user
-                             * 2. expects 1-2:: if email exists, ERROR
-                             *                  if email does not exist, SUCCESS
-                             * **/
+                        //expects:
+                        /**
+                         * 1. Integer for choice prompt from 1~5
+                         * 1-1 :: change name
+                         *        String of name
+                         * 1-2 :: change email
+                         *        String of email
+                         *        passes 2 :: if user decides not to continue, NO
+                         * 1-3 :: change password
+                         *        String of password
+                         * everything else does not require additional prompts
+                         * **/
+                        //passes:
+                        /**
+                         * 1. string formatted "%s,%s,%s" for name, email, password of current user
+                         * 2. expects 1-2:: if email exists, ERROR
+                         *                  if email does not exist, SUCCESS
+                         * **/
                         case 2:
                             boolean marketPlace = true;
                             //view farmers market
@@ -478,20 +488,20 @@ public class marketServer {
                                             return;
                                         }
                                         break;
-                                        //expects:
-                                        /**
-                                         * 1. integer from n ~ no. of products + 2
-                                         *  1-1 :: if index from n ~ no. of products
-                                         *      - integer from 1~3
-                                         *      1-1-2 :: if customer desires to purchase it now
-                                         *          - integer for quantity
-                                         * **/
-                                        //passes:
-                                        /**
-                                         * 1. n products using ObjectOutputStream
-                                         * 2. END for end of products
-                                         * 3. expects 1-1-2 :: SUCCESS or ERROR depending on the quantity of the product
-                                         * **/
+                                    //expects:
+                                    /**
+                                     * 1. integer from n ~ no. of products + 2
+                                     *  1-1 :: if index from n ~ no. of products
+                                     *      - integer from 1~3
+                                     *      1-1-2 :: if customer desires to purchase it now
+                                     *          - integer for quantity
+                                     * **/
+                                    //passes:
+                                    /**
+                                     * 1. n products using ObjectOutputStream
+                                     * 2. END for end of products
+                                     * 3. expects 1-1-2 :: SUCCESS or ERROR depending on the quantity of the product
+                                     * **/
                                     case 2:    //searchProducts
                                         do {
                                             String keyword = reader.readLine();
@@ -550,29 +560,29 @@ public class marketServer {
                                             }
                                         } while (true);
                                         break;
-                                        //expects:
-                                        /**
-                                         * 1. String keyword for search prompt
-                                         *
-                                         * Passes 1-1 :: should the search result exist
-                                         * 2. integer of index for product the user desires to get details of
-                                         * 3. integer of choice among 1~3
-                                         *  3-2 :: should the customer decide to purchase right now
-                                         *      - integer for quantity of purchase
-                                         * **/
-                                        //passes:
-                                        /**
-                                         * 1-1 :: search results exist:
-                                         *  - n product names in String!
-                                         *  - END for end of products
-                                         *      1-1-1 :: user chooses a product
-                                         *          - Products of given integer using ObjectOutputStream
-                                         *          expects 3-2 :: user purchases a product
-                                         *          - SUCCESS if product is in stock
-                                         *          - FAILED if product is not in stock
-                                         * 1-2 :: search result == null:
-                                         *  - NO SEARCH RESULTS passed
-                                         * **/
+                                    //expects:
+                                    /**
+                                     * 1. String keyword for search prompt
+                                     *
+                                     * Passes 1-1 :: should the search result exist
+                                     * 2. integer of index for product the user desires to get details of
+                                     * 3. integer of choice among 1~3
+                                     *  3-2 :: should the customer decide to purchase right now
+                                     *      - integer for quantity of purchase
+                                     * **/
+                                    //passes:
+                                    /**
+                                     * 1-1 :: search results exist:
+                                     *  - n product names in String!
+                                     *  - END for end of products
+                                     *      1-1-1 :: user chooses a product
+                                     *          - Products of given integer using ObjectOutputStream
+                                     *          expects 3-2 :: user purchases a product
+                                     *          - SUCCESS if product is in stock
+                                     *          - FAILED if product is not in stock
+                                     * 1-2 :: search result == null:
+                                     *  - NO SEARCH RESULTS passed
+                                     * **/
                                     case 3:
                                         ArrayList<Products> tempArr = new ArrayList<>();
                                         double min;
@@ -622,11 +632,11 @@ public class marketServer {
                                         writer.println("END");
                                         writer.flush();
                                         break;
-                                        //passes:
-                                        /**
-                                         * 1. n String of products' name
-                                         * 2. END for end of products
-                                         * **/
+                                    //passes:
+                                    /**
+                                     * 1. n String of products' name
+                                     * 2. END for end of products
+                                     * **/
                                     case 6:
                                         for (Products cartItem : current.getShoppingCart()) {
                                             oos.writeObject(cartItem);
@@ -681,42 +691,42 @@ public class marketServer {
                                                 writer.println("SUCCESS");
                                                 writer.flush();
                                                 break;
-                                                //passes:
-                                                /**
-                                                 * 1. if some products are out of stock, this passes n Strings of products' name
-                                                 * 2. SUCCESS
-                                                 *
-                                                 * StringBuilder failedItems = new StringBuilder();
-                                                 * do {
-                                                 *     String potentialFailure = reader.readLine();
-                                                 *     if (potentialFailure.equals("SUCCESS")) {
-                                                 *         break;
-                                                 *     } else {
-                                                 *         failedItems.append(potentialFailure);
-                                                 *         failedItems.append(", ");
-                                                 *     }
-                                                 * } while(true);
-                                                 * ...
-                                                 * if (!failedItems.isempty()) {
-                                                 *     failedItems.delete(failedItems.length() - 2, failedItems.length());
-                                                 *     String errorMessage = String.format("The items %s is out of stock.", failedItems.toString());
-                                                 *     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
-                                                 * }
-                                                 * **/
+                                            //passes:
+                                            /**
+                                             * 1. if some products are out of stock, this passes n Strings of products' name
+                                             * 2. SUCCESS
+                                             *
+                                             * StringBuilder failedItems = new StringBuilder();
+                                             * do {
+                                             *     String potentialFailure = reader.readLine();
+                                             *     if (potentialFailure.equals("SUCCESS")) {
+                                             *         break;
+                                             *     } else {
+                                             *         failedItems.append(potentialFailure);
+                                             *         failedItems.append(", ");
+                                             *     }
+                                             * } while(true);
+                                             * ...
+                                             * if (!failedItems.isempty()) {
+                                             *     failedItems.delete(failedItems.length() - 2, failedItems.length());
+                                             *     String errorMessage = String.format("The items %s is out of stock.", failedItems.toString());
+                                             *     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
+                                             * }
+                                             * **/
                                             case 2:
                                                 int indexNo = Integer.parseInt(reader.readLine()) - 1;
                                                 current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
                                                 writer.println("SUCCESS");
                                                 writer.flush();
                                                 break;
-                                                //expects:
-                                                /**
-                                                 * 1. integer index for deleting product
-                                                 * **/
-                                                //passes:
-                                                /**
-                                                 * 1. SUCCESS
-                                                 * **/
+                                            //expects:
+                                            /**
+                                             * 1. integer index for deleting product
+                                             * **/
+                                            //passes:
+                                            /**
+                                             * 1. SUCCESS
+                                             * **/
                                             default:
                                                 break;
                                         }
@@ -878,17 +888,17 @@ public class marketServer {
                                                         editingProduct.setQuantity(Integer.parseInt(reader.readLine()));
                                                     }
                                                     break;
-                                                    //expects:
-                                                    /**
-                                                     * 1. integer value of index for product desired to edit(from 1~n)
-                                                     * 2. total of 4 boolean values, potentially followed by valid* data
-                                                     *      input validation expected from the client side!
-                                                     * **/
-                                                    //passes:
-                                                    /**
-                                                     * 1. n values of product names
-                                                     * 2. END
-                                                     * **/
+                                                //expects:
+                                                /**
+                                                 * 1. integer value of index for product desired to edit(from 1~n)
+                                                 * 2. total of 4 boolean values, potentially followed by valid* data
+                                                 *      input validation expected from the client side!
+                                                 * **/
+                                                //passes:
+                                                /**
+                                                 * 1. n values of product names
+                                                 * 2. END
+                                                 * **/
                                                 case 5 :    //5. Remove product
                                                     for (Products products : currentStore.getGoods()) {
                                                         writer.println(products.getName());
@@ -901,15 +911,15 @@ public class marketServer {
                                                     newList.remove(newList.get(index));
                                                     currentStore.setGoods(newList);
                                                     break;
-                                                    //expects:
-                                                    /**
-                                                     * integer value of index for product desired to delete(from 1~n)
-                                                     * **/
-                                                    //passes:
-                                                    /**
-                                                     * 1. n values of product names
-                                                     * 2. END
-                                                     * **/
+                                                //expects:
+                                                /**
+                                                 * integer value of index for product desired to delete(from 1~n)
+                                                 * **/
+                                                //passes:
+                                                /**
+                                                 * 1. n values of product names
+                                                 * 2. END
+                                                 * **/
                                                 case 6 :    //6. Import product csv file
                                                     boolean success = true;
                                                     do {
@@ -932,16 +942,16 @@ public class marketServer {
                                                     }
                                                     writer.flush();
                                                     break;
-                                                    //expects:
-                                                    /**
-                                                     * 1. n Products using ObjectInputStream
-                                                     * 2. END prompt from the client
-                                                     * **/
-                                                    //passes:
-                                                    /**
-                                                     * if all products file is imported successfully : SUCCESS
-                                                     * else : ERROR
-                                                     * **/
+                                                //expects:
+                                                /**
+                                                 * 1. n Products using ObjectInputStream
+                                                 * 2. END prompt from the client
+                                                 * **/
+                                                //passes:
+                                                /**
+                                                 * if all products file is imported successfully : SUCCESS
+                                                 * else : ERROR
+                                                 * **/
                                                 case 7 :    //7. Export product csv file
                                                     String fileName = reader.readLine();
                                                     if (!fileName.contains(".csv")) {
@@ -956,15 +966,15 @@ public class marketServer {
                                                         writer.flush();
                                                     }
                                                     break;
-                                                    //expects
-                                                    /**
-                                                     * desired file name. Are we expecting csv ending? if not...
-                                                     * **/
-                                                    //passes
-                                                    /**
-                                                     * if file written successful : SUCCESS
-                                                     * else : ERROR
-                                                     * **/
+                                                //expects
+                                                /**
+                                                 * desired file name. Are we expecting csv ending? if not...
+                                                 * **/
+                                                //passes
+                                                /**
+                                                 * if file written successful : SUCCESS
+                                                 * else : ERROR
+                                                 * **/
                                                 case 8 :    //8. Go back
                                                     boothmenu = false;
                                                     break;
@@ -974,7 +984,7 @@ public class marketServer {
                                         String storeName = reader.readLine();
                                         current.addStore(new Store(storeName, current.getName(), current.getEmail()));
                                         break;
-                                        //expects: a store name(String)
+                                    //expects: a store name(String)
                                     case 3: //3. Edit booth
                                         if (current.getStore().isEmpty()) {
                                             writer.println("EMPTY");
@@ -992,18 +1002,18 @@ public class marketServer {
                                             current.getStore().get(index).setName(reader.readLine());
                                         }
                                         break;
-                                        //expects:
-                                        /**
-                                         * 1. integer index of store
-                                         * 2. String of new name for store
-                                         * **/
-                                        //passes:
-                                        /**
-                                         * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
-                                         * ----below are for if NOT EMPTY is passed----
-                                         * 2. n String of storeNames
-                                         * 3. END for end of stores
-                                         * **/
+                                    //expects:
+                                    /**
+                                     * 1. integer index of store
+                                     * 2. String of new name for store
+                                     * **/
+                                    //passes:
+                                    /**
+                                     * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
+                                     * ----below are for if NOT EMPTY is passed----
+                                     * 2. n String of storeNames
+                                     * 3. END for end of stores
+                                     * **/
                                     case 4: //4. Remove booth
                                         if (!current.getStore().isEmpty()) {
                                             writer.println("EMPTY");
@@ -1022,17 +1032,17 @@ public class marketServer {
                                             writer.flush();
                                         }
                                         break;
-                                        //expects:
-                                        /**
-                                         * 1. integer index of store
-                                         * **/
-                                        //passes:
-                                        /**
-                                         * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
-                                         * ----below are for if NOT EMPTY is passed----
-                                         * 2. n String of storeNames
-                                         * 3. END for end of stores
-                                         * **/
+                                    //expects:
+                                    /**
+                                     * 1. integer index of store
+                                     * **/
+                                    //passes:
+                                    /**
+                                     * 1. EMPTY if no store is within seller's directory, NOT EMPTY if else
+                                     * ----below are for if NOT EMPTY is passed----
+                                     * 2. n String of storeNames
+                                     * 3. END for end of stores
+                                     * **/
                                     case 5: //5. Go back
                                         marketMenu = false;
                                         break;
