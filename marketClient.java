@@ -86,7 +86,7 @@ public class marketClient {
                 } while (!userExists);
 
             } else {
-                writer.write("NEW USER"); //this writes to line 302 of the server
+                writer.println("NEW USER"); //this writes to line 302 of the server
                 writer.flush();
                 System.out.println("new user");
                 //if it's a customer, print 1, if not, print 2
@@ -110,28 +110,34 @@ public class marketClient {
                 String email = scan.nextLine();
                 writer.println(email);
                 writer.flush();
+
+                boolean emailExists = false;
+                do {
+                    String successYesNo = reader.readLine(); //if "ERROR" the email exists
+                    if (successYesNo.equals("ERROR")) { //the user needs to enter a new email
+                        emailExists = true;
+
+                        System.out.println("Enter a new email!");
+                        email = scan.nextLine(); //GUI SET EMAIL TO
+                                                //  "DO NOT RE-ENTER EMAIL" if user says not to enter email
+                        writer.println(email);
+                        writer.flush();
+
+                        if (email.equals("DO NOT RE-ENTER EMAIL")) { //this is if the user cancels or chooses not to try again
+                            oos.close();
+                            ois.close();
+                            reader.close();
+                            writer.close();
+                            return;
+                        }
+                    } else {
+                        emailExists = false;
+                    }
+                } while (emailExists);
                 System.out.println("Enter a password");
                 String password = scan.nextLine();
                 writer.println(password);
                 writer.flush();
-                boolean emailExists;
-                if (reader.readLine().equals("EMAIL SUCCESS")) { //TODO make this section work better
-                    emailExists = false;
-                } else { //the user needs to enter a new email
-                    emailExists = true;
-                    do {
-                        System.out.println("Enter a new email!");
-                        placeholderGUI = scan.nextLine();
-                        writer.write(placeholderGUI);
-                        writer.flush();
-
-                        if (placeholderGUI.equals("NO")) { //this is if the user cancels or chooses not to try again
-                            writer.println("NO");
-                            writer.flush();
-                            return;
-                        }
-                    } while (emailExists);
-                }
 
 
 
@@ -304,7 +310,7 @@ public class marketClient {
                                             ArrayList<String> searchResults = new ArrayList<>();
                                             System.out.println("what would you like to search for?");
                                             String keyword = scan.nextLine();
-                                            writer.write(keyword);
+                                            writer.println(keyword);
                                             writer.flush();
                                             String firstMessage = reader.readLine();
                                             if (!firstMessage.equals("NO SEARCH RESULTS")) {
@@ -334,7 +340,7 @@ public class marketClient {
                                                                 "3. go back");
                                                         placeholderGUI = String.valueOf(scan.nextInt());
                                                         scan.nextLine();
-                                                        writer.write(placeholderGUI);
+                                                        writer.println(placeholderGUI);
                                                         writer.flush();
                                                         switch (Integer.parseInt(placeholderGUI)) {
                                                             case 1: //add to shopping cart
@@ -348,7 +354,7 @@ public class marketClient {
                                                                     System.out.println("how many would you like to purchase?");
                                                                     int quantity = scan.nextInt();
                                                                     scan.nextLine();
-                                                                    writer.write(quantity);
+                                                                    writer.println(quantity);
                                                                     writer.flush();
                                                                     if (reader.readLine().equals("SUCCESS")) {
                                                                         //GUI
@@ -525,7 +531,7 @@ public class marketClient {
                     System.out.println("What would you like to do?");
                     menuChoice = scan.nextInt();
                     scan.nextLine();
-                    writer.write(menuChoice);
+                    writer.println(menuChoice);
                     writer.flush();
                     switch (menuChoice) {
                         case 1: //view/edit your account
@@ -559,7 +565,7 @@ public class marketClient {
                                             //GUI input
                                             System.out.println("what would you like to change your email to?");
                                             email = scan.nextLine();
-                                            writer.write(email);
+                                            writer.println(email);
                                             writer.flush();
                                             String success = reader.readLine();
                                             if (success.equals("FAILED")) {
@@ -574,7 +580,7 @@ public class marketClient {
                                         System.out.println("what would you like to change your password to?");
                                         //maybe have a way to check it's not the same as the current password but idk
                                         password = scan.nextLine();
-                                        writer.write(password);
+                                        writer.println(password);
                                         writer.flush();
 
 
@@ -604,3 +610,4 @@ public class marketClient {
 
     }
 }
+
