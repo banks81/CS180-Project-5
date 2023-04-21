@@ -6,12 +6,16 @@ import java.util.ArrayList;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class marketServer {
+public class marketServer implements Runnable{
     public static ArrayList<User> customersList = new ArrayList<>();
     public static ArrayList<User> sellersList = new ArrayList<>();
     public static ArrayList<Store> storesList = new ArrayList<>(); //arrayList of stores in the marketplace
     public static ArrayList<Products> productsList = new ArrayList<>();
     public static ArrayList<String> customerTempCart = new ArrayList<>();
+    Socket socket;
+    public marketServer(Socket socket){
+        this.socket = socket;
+    }
     public static Products productString(String strings) {
         String[] stringsplit = strings.split(";;");
         return(new Products(stringsplit[0], Double.parseDouble(stringsplit[4]), Integer.parseInt(stringsplit[3]), stringsplit[1], 0, stringsplit[2],0 ));
@@ -279,10 +283,17 @@ public class marketServer {
             System.out.println("Program terminated.");
         }
     }
-    public static void main(String[] args) {
-        try {
-            ServerSocket serverSocket = new ServerSocket(4242);
+    public static void main(String[] args) throws IOException{
+        ServerSocket serverSocket = new ServerSocket(42069);
+        System.out.println("Waiting for connection on 42069");
+        while (true){
             Socket socket = serverSocket.accept();
+            marketServer server = new marketServer(socket);
+            new Thread(server).start();
+        }
+    }
+    public void run() {
+        try {
             System.out.println("accepted");
             String searchKeyword;
             StringBuilder searchResult = new StringBuilder();
@@ -328,7 +339,7 @@ public class marketServer {
                         writer.println("NO USER");
                         writer.flush();
                         if (reader.readLine().equals("NO")) {
-                            serverSocket.close();
+                            //serverSocket.close();
                             return;
                         } else {
                             System.out.println("try again!");
@@ -347,7 +358,7 @@ public class marketServer {
                         reader.close();
                         ois.close();
                         oos.close();
-                        serverSocket.close();
+                        //serverSocket.close();
                         return;
                     }
                     email = reader.readLine();
@@ -484,7 +495,7 @@ public class marketServer {
                                                     break;
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
-                                            serverSocket.close();
+                                            //serverSocket.close();
                                             return;
                                         }
                                         break;
@@ -737,12 +748,12 @@ public class marketServer {
                                     case 8:
                                         marketPlace = false;
                                         mainmenu = false;
-                                        serverSocket.close();
+                                        //serverSocket.close();
                                         break;
                                 }
                             } while (marketPlace);
                         case 3:
-                            serverSocket.close();
+                            //serverSocket.close();
                             mainmenu = false;
                             break;
                     }
@@ -801,7 +812,7 @@ public class marketServer {
                                         break;
                                     case 4 :
                                         sellersList.remove((User) current);
-                                        serverSocket.close();
+                                        //serverSocket.close();
                                         editAcc = false;
                                         mainmenu = false;
                                         break;
@@ -1052,7 +1063,7 @@ public class marketServer {
                 } while(mainmenu);
             }
 
-            serverSocket.close();
+            //serverSocket.close();
             ois.close();
             oos.close();
             reader.close();
