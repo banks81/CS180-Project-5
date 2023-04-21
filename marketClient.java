@@ -148,6 +148,7 @@ public class marketClient {
 
 
             if (isCustomer) {
+                System.out.println("it's a customer");
                 boolean mainMenu = false;
                 mainMenu = true;
                 /**
@@ -156,13 +157,17 @@ public class marketClient {
                  * 3. quit
                  * **/
                 do {
+                    System.out.println("1. view/edit acc \n2. view farmer's market \n3. quit");
                     //display GUI for main menu: gets info for what they want to do in the main menu
                     int choice = scan.nextInt(); //choice is recieved from GUI
                     scan.nextLine();
                     writer.println(choice); //sends choice to server so they know which one
+                    writer.flush();
+                    System.out.println("sent " + choice + " to server");
                     switch (choice) {
                         case 1: //view / edit account
                             boolean editAcc = true;
+                            System.out.println("edit account");
                             do {
                                 String name = reader.readLine();
                                 String email = reader.readLine();
@@ -172,25 +177,31 @@ public class marketClient {
                                 //  send 1, 2, or 3 to server
                                 //  send 4 to server if removing/deleting account
                                 //  send 5 to exit this page
+                                System.out.println("do you want to change your 1. name, 2. email, or 3. password");
+                                System.out.println("or 4. remove/delete account, 5. exit this page");
                                 int decision = scan.nextInt(); //whatever the GUI puts out
                                 scan.nextLine();
                                 writer.println(decision);
                                 writer.flush();
                                 switch (decision) {
                                     case 1:
+                                        System.out.println("what do you want to change your name to?");
                                         String newName = scan.nextLine();
                                         writer.println(newName);
                                         writer.flush();
+                                        System.out.println("name set to " + newName);
                                         break;
                                     case 2:
                                         do {
+                                            System.out.println("what do you want to change your email to?");
+                                            email = scan.nextLine();
                                             writer.println(email);
                                             writer.flush();
                                             if (reader.readLine().equals("ERROR")) { //this means the email does exist
                                                 //use GUI for this instead of print statements
                                                 System.out.println("A user with that email already exists! Would you like to try again?");
                                                 placeholderGUI = scan.nextLine();
-                                                if (placeholderGUI.equals("no")) {
+                                                if (placeholderGUI.equalsIgnoreCase("no")) {
                                                     writer.println("NO");
                                                     writer.flush();
                                                     break;
@@ -204,12 +215,15 @@ public class marketClient {
                                                 break;
                                             }
                                         } while (true);
+                                        System.out.println("email changed to " + email);
+                                        break;
                                     case 3:
                                         //use GUI for this input
                                         System.out.println("What would you like to change your password to?");
-                                        String changedPassword = scan.nextLine(); //whatever the user wants to change it to
-                                        writer.println(changedPassword);
+                                        password = scan.nextLine(); //whatever the user wants to change it to
+                                        writer.println(password);
                                         writer.flush();
+                                        System.out.println("sent " + password + " to server");
                                         break;
                                     case 4:
                                         //I don't think anything is needed here as is but
@@ -224,6 +238,15 @@ public class marketClient {
                             } while (editAcc);
                             break;
                         case 2: //view farmer's market
+                            System.out.println("view farmer's market");
+                            System.out.println("* 1. view overall farmer's market listings\n" +
+                                    "* 2. search for specific products\n" +
+                                    "* 3. sort the products by price, lowest to highest\n" +
+                                    "* 4. sort the products by quantity available, lowest to hightest\n" +
+                                    "* 5. view your purchase history\n" +
+                                    "* 6. view your shopping cart\n" +
+                                    "* 7. go back to main menu\n" +
+                                    "* 8. quit");
                             /**
                              * 1. view overall farmer's market listings
                              * 2. search for specific products
@@ -242,18 +265,25 @@ public class marketClient {
                                 scan.nextLine();
                                 writer.println(decision);
                                 writer.flush();
+                                System.out.println("printed " + decision + " to server");
                                 switch (decision) {
                                     case 1:
+                                        System.out.println("case 1");
                                         ArrayList<Products> productsList = new ArrayList();
                                         while (reader.readLine().equals("END")) {
                                             productsList.add((Products) ois.readObject());
                                         }
                                         //GUI
                                         //  show the list of products and make a selection
+                                        for (int i = 0; i < productsList.size(); i++) {
+                                            System.out.println(i + 1 + ". " + productsList.get(i));
+                                        }
                                         System.out.println("which product would you like to look at?");
                                         int marketChoice = scan.nextInt();
                                         scan.nextLine();
                                         writer.println(marketChoice);
+                                        writer.flush();
+                                        System.out.println("printed" + marketChoice + "to server");
                                         if (marketChoice <= productsList.size()) {
                                             Products productOfChoice = productsList.get(marketChoice - 1);
                                             /**
@@ -261,10 +291,12 @@ public class marketClient {
                                              * 2. purchase now
                                              * 3. go back to products list
                                              * **/
-                                            System.out.println("What would you like to do? 1. 2. 3");
+                                            System.out.println("What would you like to do? 1. add one to cart" +
+                                                    "\n 2. purchase now \n3. go back to products list");
                                             placeholderGUI = scan.nextLine(); //you may need to create another variable, I'm not sure
                                             writer.println(placeholderGUI);  //for now I'm just using placeholderGUI for the choice
                                             writer.flush();
+                                            System.out.println("sent " + placeholderGUI + " to choice");
                                             switch (Integer.parseInt(placeholderGUI)) {
                                                 case 1: //add to shopping cart
                                                     break; //the server doesn't have it reading or writing anything
@@ -301,6 +333,7 @@ public class marketClient {
                                             return;
                                         }
                                         break;
+
 
 
                                     case 2: //searchProducts
