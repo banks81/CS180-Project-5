@@ -369,6 +369,7 @@ public class marketServer {
 
             //CUSTOMER
             if (currentUser[0].getClass() == Customer.class) {
+                System.out.println("class is customer");
                 Customer current = (Customer) currentUser[0];
                 boolean mainmenu = true;
                 /**
@@ -376,25 +377,35 @@ public class marketServer {
                  * 2. view farmer's market <<holy shit
                  * 3. quit
                  * **/
+                System.out.println("1. view/edit acc \n2. view farmer's market \n3. quit");
                 do {
-                    switch (Integer.parseInt(reader.readLine())) {
+                    int choice = Integer.parseInt(reader.readLine());
+                    System.out.println("recieved " + choice);
+                    switch (choice) {
                         case 1:    //view/edit your acc
                             boolean editAcc = true;
                             do {
+                                System.out.println("edit account");
                                 writer.println(current.getName());
                                 writer.flush();
+                                System.out.println("printed " + current.getName());
                                 writer.println(current.getEmail());
                                 writer.flush();
+                                System.out.println("printed " + current.getEmail());
                                 writer.println(current.getPassword());
                                 writer.flush();
+                                System.out.println("printed " + current.getPassword());
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1:
                                         current.setName(reader.readLine());
+                                        System.out.println("name set to " + current.getName());
                                         break;
                                     case 2:
                                         do {
+                                            System.out.println("changing email");
                                             String email = reader.readLine();
                                             if (doesEmailExist(email)) {
+                                                System.out.println("email is already in the system");
                                                 writer.println("ERROR");
                                                 writer.flush();
                                                 if (reader.readLine().equals("NO")) {
@@ -407,9 +418,12 @@ public class marketServer {
                                                 break;
                                             }
                                         } while (true);
+                                        System.out.println("email changed to " + current.getEmail());
                                         break;
                                     case 3:
+                                        System.out.println("change password");
                                         current.setPassword(reader.readLine());
+                                        System.out.println("changed password to " + current.getPassword());
                                         break;
                                     case 4:
                                         customersList.remove(current);
@@ -437,19 +451,6 @@ public class marketServer {
                          * 2. expects 1-2:: if email exists, ERROR
                          *                  if email does not exist, SUCCESS
                          * **/
-                        case 2:
-                            boolean marketPlace = true;
-                            //view farmers market
-                            /**
-                             * 1. view overall farmer's market listings
-                             * 2. search for specific products
-                             * 3. sort the products by price, lowest to highest
-                             * 4. sort the products by quantity available, lowest to hightest
-                             * 5. view your purchase history
-                             * 6. view your shopping cart
-                             * 7. go back to main menu
-                             * 8. quit
-                             * **/
                             do {
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1:
