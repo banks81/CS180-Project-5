@@ -1,22 +1,27 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 public class MarketViewer implements Runnable {
 
     //Welcome
+    JFrame welcomeWindow;
     JLabel welcomeTitle;
     JButton login;
     JButton createAccount;
 
     //Main Menu
+    JFrame mainWindow;
     JLabel optionsTitle;
     JButton account;
     JButton marketOptions;
     JButton quit;
 
     //Account Menu
+    JFrame accountWindow;
     JLabel accountHeader;
     JTextField nameField;
     JTextField emailField;
@@ -28,6 +33,7 @@ public class MarketViewer implements Runnable {
     JButton backToMainFromAccount;
 
     //Products Menu
+    JFrame productsWindow;
     JLabel marketTitle;
     JButton viewListings;
     JButton productSearch;
@@ -38,6 +44,7 @@ public class MarketViewer implements Runnable {
     JButton backToMainFromMarket;
 
     //Listings Menu
+    JFrame listingsWindow;
     JLabel listingsHeader;
     JComboBox productsDropdown;
     JButton viewProduct;
@@ -48,11 +55,20 @@ public class MarketViewer implements Runnable {
         SwingUtilities.invokeLater(new MarketViewer());
     }
 
+    public void endProgram() {
+        //Close all windows
+        mainWindow.dispose();
+        welcomeWindow.dispose();
+        accountWindow.dispose();
+        productsWindow.dispose();
+        listingsWindow.dispose();
+    }
+
     public void run() {
 
     //WELCOME MENU SETUP
             //Create Objects for screen
-        JFrame welcomeWindow = new JFrame("Farmer's Market Welcome Menu");
+        welcomeWindow = new JFrame("Farmer's Market Welcome Menu");
         Container welcomeContent = welcomeWindow.getContentPane();
         welcomeTitle = new JLabel("Welcome!");
         welcomeTitle.setFont(new Font("Serif", Font.PLAIN, 30));
@@ -69,15 +85,15 @@ public class MarketViewer implements Runnable {
         welcomeButtonPanel.add(login, BorderLayout.CENTER);
         welcomeContent.add(welcomeButtonPanel, BorderLayout.CENTER);
             //General Config
-        welcomeWindow.setSize(400, 200);
+        welcomeWindow.setSize(500, 300);
         welcomeWindow.setLocationRelativeTo(null);
-        welcomeWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        welcomeWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         welcomeWindow.setVisible(true);
 
 
     //MAIN MENU SETUP
             //Create Objects for screen
-        JFrame mainWindow = new JFrame("Farmer's Market Main Menu");
+        mainWindow = new JFrame("Farmer's Market Main Menu");
         Container mainContent = mainWindow.getContentPane();
         mainContent.setLayout(new BorderLayout());
         optionsTitle = new JLabel("Options:");
@@ -96,14 +112,14 @@ public class MarketViewer implements Runnable {
         mainButtonPanel.add(marketOptions, BorderLayout.CENTER);
         mainContent.add(mainButtonPanel, BorderLayout.CENTER);
             //General Config
-        mainWindow.setSize(400, 200);
+        mainWindow.setSize(500, 300);
         mainWindow.setLocationRelativeTo(null);
-        mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        mainWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         mainWindow.setVisible(false);
 
 
     //ACCOUNT MENU SETUP
-        JFrame accountWindow = new JFrame("Farmer's Market Account Menu");
+        accountWindow = new JFrame("Farmer's Market Account Menu");
         Container accountContent = accountWindow.getContentPane();
         accountContent.setLayout(new BorderLayout());
             //Create objects for screen
@@ -132,15 +148,15 @@ public class MarketViewer implements Runnable {
         accountWindow.add(accountInfoPnl, BorderLayout.CENTER);
         accountWindow.add(accountHeaderPnl, BorderLayout.NORTH);
             //General Config
-        accountWindow.setSize(700, 300);
+        accountWindow.setSize(500, 300);
         accountWindow.setLocationRelativeTo(null);
-        accountWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        accountWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         accountWindow.setVisible(false);
 
 
 
     //PRODUCTS MENU SETUP
-        JFrame productsWindow = new JFrame("Farmer's Market Products Menu");
+        productsWindow = new JFrame("Farmer's Market Products Menu");
         Container productsContent = productsWindow.getContentPane();
         productsContent.setLayout(new BorderLayout());
             //Create Objects
@@ -167,9 +183,9 @@ public class MarketViewer implements Runnable {
         productsWindow.add(marketHeaderPnl, BorderLayout.NORTH);
         productsWindow.add(backToMainFromMarket, BorderLayout.SOUTH);
             //General Config
-        productsWindow.setSize(700, 300);
+        productsWindow.setSize(500, 300);
         productsWindow.setLocationRelativeTo(null);
-        productsWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        productsWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         productsWindow.setVisible(false);
 
 
@@ -181,7 +197,7 @@ public class MarketViewer implements Runnable {
             dummyListStr[i] = dummyList[i].getName() + " from " + dummyList[i].getStoreName() + " ($" + dummyList[i].getPrice() + ")";
         }
     //LISTINGS MENU SETUP
-        JFrame listingsWindow = new JFrame("Farmer's Market Listings Menu");
+        listingsWindow = new JFrame("Farmer's Market Listings Menu");
         Container listingsContent = listingsWindow.getContentPane();
         listingsContent.setLayout(new BorderLayout());
             //Create Objects
@@ -189,7 +205,7 @@ public class MarketViewer implements Runnable {
         listingsHeader.setFont(new Font("Serif", Font.PLAIN, 24));
         productsDropdown = new JComboBox(dummyListStr);
         viewProduct = new JButton("View This Product");
-        backToMarketFromListings = new JButton();
+        backToMarketFromListings = new JButton("Back");
             //Paneling for organization
         JPanel listingsHeaderPnl = new JPanel();
         listingsHeaderPnl.add(listingsHeader);
@@ -198,21 +214,24 @@ public class MarketViewer implements Runnable {
         listingsPnl.add(viewProduct);
         listingsContent.add(listingsPnl, BorderLayout.CENTER);
         listingsContent.add(listingsHeaderPnl, BorderLayout.NORTH);
+        listingsContent.add(backToMarketFromListings, BorderLayout.SOUTH);
             //General Config
-        listingsWindow.setSize(900, 300);
+        listingsWindow.setSize(500, 300);
         listingsWindow.setLocationRelativeTo(null);
-        listingsWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        listingsWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         listingsWindow.setVisible(false);
 
 
 
     //ACTION LISTENERS
 
-
         //WELCOME WINDOW
         login.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO implement logging in with JOptionPane
+                String username = JOptionPane.showInputDialog("Enter your username: ");
+                String password = JOptionPane.showInputDialog("Enter your password: ");
+
                 welcomeWindow.setVisible(false);
                 mainWindow.setVisible(true);
             }
@@ -220,6 +239,12 @@ public class MarketViewer implements Runnable {
         createAccount.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO implement creating an account with JOptionPane
+                String [] dialogButtons = {"Seller", "Customer"};
+                int seller = JOptionPane.showOptionDialog(null, "Welcome new user!\nAre you a seller or customer?", "Create Account",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogButtons, dialogButtons[0]);
+                String name = JOptionPane.showInputDialog("Welcome new user! \nEnter your name: ");
+                String email = JOptionPane.showInputDialog("Welcome new user! \nEnter your email: ");
+                String password = JOptionPane.showInputDialog("Welcome new user! \nEnter your password: ");
                 welcomeWindow.setVisible(false);
                 mainWindow.setVisible(true);
             }
@@ -299,6 +324,7 @@ public class MarketViewer implements Runnable {
         });
 
         //BACK BUTTONS
+        //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 listingsWindow.setVisible(false);
@@ -319,10 +345,50 @@ public class MarketViewer implements Runnable {
         });
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO: Quitting? Close all windows?
+                endProgram();
             }
         });
+
+
         //TODO: What to do if red X button is pushed?
+        //Solution: window listeners
+        //Idea 1: disable the red X for all windows, so the only way to close the program is the quit button
+        //TODO: How to handle information when each of these is closed?
+        mainWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                mainWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the button below", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        welcomeWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                JOptionPane.showMessageDialog(null, "See you next time!", "Bye!", JOptionPane.INFORMATION_MESSAGE);
+                endProgram();
+            }
+        });
+        accountWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                accountWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        productsWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                productsWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        listingsWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                listingsWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
     }
 }
