@@ -277,7 +277,7 @@ public class marketServer {
     }
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(4242);
+            ServerSocket serverSocket = new ServerSocket(42069);
             Socket socket = serverSocket.accept();
             System.out.println("accepted");
             String searchKeyword;
@@ -457,8 +457,8 @@ public class marketServer {
                                             oos.flush();
                                             System.out.println(product.getName());
                                         }
-                                        writer.println("END");
-                                        writer.flush();
+                                        oos.writeObject("END");
+                                        oos.flush();
                                         int marketChoice = Integer.parseInt(reader.readLine()); //assuming it will be given from 1, not index zero
                                         if (marketChoice <= productsList.size()) {
                                             System.out.println("product chosen: " + productsList.get(marketChoice - 1).getName());
