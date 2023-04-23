@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import javax.swing.JOptionPane;
+import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.ObjectInputStream;
@@ -119,7 +120,7 @@ public class marketClient {
 
                         System.out.println("Enter a new email!");
                         email = scan.nextLine(); //GUI SET EMAIL TO
-                                                //  "DO NOT RE-ENTER EMAIL" if user says not to enter email
+                        //  "DO NOT RE-ENTER EMAIL" if user says not to enter email
                         writer.println(email);
                         writer.flush();
 
@@ -142,13 +143,10 @@ public class marketClient {
 
 
             }
-            //enter mail menu
+            System.out.println("Login success!");
 
             //CUSTOMER
-
-
             if (isCustomer) {
-                System.out.println("it's a customer");
                 boolean mainMenu = false;
                 mainMenu = true;
                 /**
@@ -157,17 +155,14 @@ public class marketClient {
                  * 3. quit
                  * **/
                 do {
-                    System.out.println("1. view/edit acc \n2. view farmer's market \n3. quit");
                     //display GUI for main menu: gets info for what they want to do in the main menu
                     int choice = scan.nextInt(); //choice is recieved from GUI
                     scan.nextLine();
                     writer.println(choice); //sends choice to server so they know which one
                     writer.flush();
-                    System.out.println("sent " + choice + " to server");
                     switch (choice) {
                         case 1: //view / edit account
                             boolean editAcc = true;
-                            System.out.println("edit account");
                             do {
                                 String name = reader.readLine();
                                 String email = reader.readLine();
@@ -177,23 +172,18 @@ public class marketClient {
                                 //  send 1, 2, or 3 to server
                                 //  send 4 to server if removing/deleting account
                                 //  send 5 to exit this page
-                                System.out.println("do you want to change your 1. name, 2. email, or 3. password");
-                                System.out.println("or 4. remove/delete account, 5. exit this page");
                                 int decision = scan.nextInt(); //whatever the GUI puts out
                                 scan.nextLine();
                                 writer.println(decision);
                                 writer.flush();
                                 switch (decision) {
                                     case 1:
-                                        System.out.println("what do you want to change your name to?");
                                         String newName = scan.nextLine();
                                         writer.println(newName);
                                         writer.flush();
-                                        System.out.println("name set to " + newName);
                                         break;
                                     case 2:
                                         do {
-                                            System.out.println("what do you want to change your email to?");
                                             email = scan.nextLine();
                                             writer.println(email);
                                             writer.flush();
@@ -201,7 +191,7 @@ public class marketClient {
                                                 //use GUI for this instead of print statements
                                                 System.out.println("A user with that email already exists! Would you like to try again?");
                                                 placeholderGUI = scan.nextLine();
-                                                if (placeholderGUI.equalsIgnoreCase("no")) {
+                                                if (placeholderGUI.equals("no")) {
                                                     writer.println("NO");
                                                     writer.flush();
                                                     break;
@@ -209,21 +199,18 @@ public class marketClient {
                                                     writer.println("CONTINUE");
                                                     writer.flush();
                                                 }
-
                                             } else { //this is if it's a success and the email was changed
                                                 System.out.println("Email was successfully changed!"); //GUI
                                                 break;
                                             }
                                         } while (true);
-                                        System.out.println("email changed to " + email);
                                         break;
                                     case 3:
                                         //use GUI for this input
                                         System.out.println("What would you like to change your password to?");
-                                        password = scan.nextLine(); //whatever the user wants to change it to
-                                        writer.println(password);
+                                        String changedPassword = scan.nextLine(); //whatever the user wants to change it to
+                                        writer.println(changedPassword);
                                         writer.flush();
-                                        System.out.println("sent " + password + " to server");
                                         break;
                                     case 4:
                                         //I don't think anything is needed here as is but
@@ -238,15 +225,6 @@ public class marketClient {
                             } while (editAcc);
                             break;
                         case 2: //view farmer's market
-                            System.out.println("view farmer's market");
-                            System.out.println("* 1. view overall farmer's market listings\n" +
-                                    "* 2. search for specific products\n" +
-                                    "* 3. sort the products by price, lowest to highest\n" +
-                                    "* 4. sort the products by quantity available, lowest to hightest\n" +
-                                    "* 5. view your purchase history\n" +
-                                    "* 6. view your shopping cart\n" +
-                                    "* 7. go back to main menu\n" +
-                                    "* 8. quit");
                             /**
                              * 1. view overall farmer's market listings
                              * 2. search for specific products
@@ -270,9 +248,9 @@ public class marketClient {
                                         ArrayList<Products> productsList = new ArrayList();
                                         do {
                                             try {
-                                                Products products = (Products) ois.readObject();
-                                                productsList.add(products);
-                                                System.out.println(products.getName() + " received");
+                                                Products newProduct = (Products) ois.readObject();
+                                                productsList.add(newProduct);
+                                                System.out.println(newProduct.getName() + " received");
                                             } catch (Exception e) {
                                                 break;
                                             }
@@ -344,15 +322,20 @@ public class marketClient {
                                             String firstMessage = reader.readLine();
                                             if (!firstMessage.equals("NO SEARCH RESULTS")) {
                                                 searchResults.add(firstMessage);
-                                                while (!reader.readLine().equals("END")) {
-                                                    searchResults.add(reader.readLine());
+                                                firstMessage = reader.readLine();
+                                                while (!firstMessage.equals("END")) {
+                                                    searchResults.add(firstMessage);
+                                                    firstMessage = reader.readLine();
                                                 }
+                                                System.out.println(searchResults.toString());
                                                 //GUI
                                                 //  shows all search results names in numbered order
                                                 //  gets the reader to pick one
                                                 System.out.println("Which product would you like to view?");
                                                 int searchIndex = scan.nextInt();
                                                 scan.nextLine();
+                                                writer.println(searchIndex);
+                                                writer.flush();
                                                 do {
                                                     if (searchIndex <= searchResults.size()) {
                                                         Products product = (Products) ois.readObject();
@@ -398,7 +381,6 @@ public class marketClient {
                                                                 break;
                                                         }
                                                         break;
-
                                                     } else { //this handles if the searchindex is greater than the
                                                         //number of products
                                                         //TODO idk how to handle the loops here
@@ -419,12 +401,11 @@ public class marketClient {
                                             if (choice2 == 1) {
                                                 writer.println("YES");
                                                 writer.flush();
-                                                break;
                                             } else {
                                                 writer.println("NO");
                                                 writer.flush();
+                                                break;
                                             }
-
                                         } while (true);
                                     case 3: //sort by price lowest to highest
                                         //no info is passed from server to client or vice versa
@@ -435,14 +416,18 @@ public class marketClient {
                                         //no info is passed from server to client or vice versa
                                         //GUI
                                         //  says it's been
+                                        break;
                                     case 5: //view your purchase history
                                         ArrayList<String> purchaseHistory = new ArrayList<>();
-                                        while (!reader.readLine().equals("END")) {
-                                            purchaseHistory.add(reader.readLine());
+                                        String pastPurchase = reader.readLine();
+                                        while (!pastPurchase.equals("END")) {
+                                            purchaseHistory.add(pastPurchase);
+                                            pastPurchase = reader.readLine();
                                         }
                                         //GUI
                                         //  show purchase history in a pop-up
                                         if (!purchaseHistory.isEmpty()) {
+                                            System.out.println(purchaseHistory.toString());
                                             //display GUI of purchaseHistory
                                         } else {
                                             //display You have no past purchases!
@@ -453,13 +438,9 @@ public class marketClient {
                                         ArrayList<Products> productListTemp = new ArrayList<>();
                                         do {
                                             try {
-                                                Object o = ois.readObject();
-                                                String exitLine = (String) o;
-                                                if (exitLine.equals("END")) {
-                                                    break;
-                                                } else {
-                                                    productListTemp.add((Products) o);
-                                                }
+                                                Products products = (Products) ois.readObject();
+                                                productListTemp.add(products);
+                                                System.out.println("Received " + products.getName());
                                             } catch(Exception e) {
                                                 break;
                                             }
@@ -468,51 +449,55 @@ public class marketClient {
                                         //  1. Purchase cart
                                         //  2. Remove an item
                                         //  3. Return to Market Menu
-                                         //items that couldn't be purchased
-                                        int choice3 = scan.nextInt();   //I'm sorry I keep declaring new variables
-                                        scan.nextLine();              //I'm just worried I'll fuck up the loops if I don't
-                                        switch (choice3) {
-                                            case 1:
-                                                StringBuilder notPurchasedItems = new StringBuilder();
-                                                do {
-                                                    String potentialFailure = reader.readLine();
-                                                    if (potentialFailure.equals("SUCCESS")) {
-                                                        break;
-                                                    } else {
-                                                        notPurchasedItems.append(potentialFailure);
-                                                        notPurchasedItems.append(", ");
+                                        //items that couldn't be purchased
+                                        if (!productListTemp.isEmpty()) {
+                                            int choice3 = scan.nextInt();   //I'm sorry I keep declaring new variables
+                                            scan.nextLine();              //I'm just worried I'll fuck up the loops if I don't
+                                            writer.println(choice3);
+                                            writer.flush();
+                                            switch (choice3) {
+                                                case 1:
+                                                    StringBuilder notPurchasedItems = new StringBuilder();
+                                                    do {
+                                                        String potentialFailure = reader.readLine();
+                                                        if (potentialFailure.equals("SUCCESS")) {
+                                                            break;
+                                                        } else {
+                                                            notPurchasedItems.append(potentialFailure);
+                                                            notPurchasedItems.append(", ");
+                                                        }
+                                                    } while (true);
+
+                                                    if (!notPurchasedItems.isEmpty()) {
+                                                        notPurchasedItems.delete(notPurchasedItems.length() - 2,
+                                                                notPurchasedItems.length());
+                                                        String errorMessage = String.format("The items %s is out of stock.",
+                                                                notPurchasedItems.toString());
+                                                        JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
+                                                        //GUI
+                                                        //  minyhoung coded this JOptionPane but you don't need to use it
+                                                        //  pop-ups for each item that was not able to be purchased
                                                     }
-                                                } while (true);
-
-                                                if (!notPurchasedItems.isEmpty()) {
-                                                    notPurchasedItems.delete(notPurchasedItems.length() - 2,
-                                                            notPurchasedItems.length());
-                                                    String errorMessage = String.format("The items %s is out of stock.",
-                                                            notPurchasedItems.toString());
-                                                    JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
                                                     //GUI
-                                                    //  minyhoung coded this JOptionPane but you don't need to use it
-                                                    //  pop-ups for each item that was not able to be purchased
-                                                }
-                                                //GUI
-                                                //  message about "thanks for shopping! Returning to *whatever menu*
-                                                break;
-                                            case 2: //remove an item
-                                                //GUI
-                                                //  use it to make selections, etc
-                                                System.out.println("Which item would you like to remove?");
-                                                choice3 = scan.nextInt();
-                                                scan.nextLine();
-                                                writer.println(choice3);
-                                                writer.flush();
-                                                reader.readLine(); //this reads the success line from server
-                                                break;
-
-                                            default: //go back to market menu
-                                                break;
+                                                    //  message about "thanks for shopping! Returning to *whatever menu*
+                                                    break;
+                                                case 2: //remove an item
+                                                    //GUI
+                                                    //  use it to make selections, etc
+                                                    System.out.println("Which item would you like to remove?");
+                                                    choice3 = scan.nextInt();
+                                                    scan.nextLine();
+                                                    writer.println(choice3);
+                                                    writer.flush();
+                                                    reader.readLine(); //this reads the success line from server
+                                                    break;
+                                                default: //go back to market menu
+                                                    break;
+                                            }
+                                        } else {
+                                            //something with empty GUI
                                         }
                                         break;
-
                                     case 7: //go back to the main menu
                                         marketPlace = false;
                                         break;
@@ -526,10 +511,10 @@ public class marketClient {
                                         //  that checks if they actually want to quit
                                         //  but I'm not editing server right now so I'm not doing that yet
                                         return; //this ends the program
-
                                 }
 
                             } while (marketPlace);
+                            break;
                         case 3: //quit
                             socket.close();
                             //GUI
@@ -611,6 +596,7 @@ public class marketClient {
                                         password = scan.nextLine();
                                         writer.println(password);
                                         writer.flush();
+                                        break;
                                     case 4:
                                         writer.println(4);
                                         writer.flush();
@@ -623,18 +609,19 @@ public class marketClient {
                             } while (editAcc);
                         case 2: //view farmer's market
                             boolean marketMenu = true;
-                            System.out.println("what would you like to do?");
-                            menuChoice = scan.nextInt();
-                            scan.nextLine();
                             //GUI
                             //  1. View booths
                             //  2. Add booth
                             //  3. Edit booth
                             //  4. Remove booth
                             //  5. Go back
-                            writer.println(menuChoice);
-                            writer.flush();
                             do {
+                                System.out.println("what would you like to do?");
+                                menuChoice = scan.nextInt();
+                                scan.nextLine();
+                                writer.println(menuChoice);
+                                writer.flush();
+
                                 switch (menuChoice) {
                                     case 1: //view booths
                                         do {
@@ -662,15 +649,13 @@ public class marketClient {
                                         //  7. Export product csv file
                                         //  8. Go back
 
-                                        System.out.println("What would you like to do?");
-
-                                        menuChoice = scan.nextInt();
-                                        scan.nextLine();
-                                        writer.println(menuChoice);
-                                        writer.flush();
                                         boolean boothMenu = true;
-
                                         do {
+                                            System.out.println("What would you like to do?");
+                                            menuChoice = scan.nextInt();
+                                            scan.nextLine();
+                                            writer.println(menuChoice);
+                                            writer.flush();
                                             switch (menuChoice) {
                                                 case 1:
                                                     do {
@@ -703,14 +688,9 @@ public class marketClient {
                                                     ArrayList<Products> productsList = new ArrayList<>();
                                                     do {
                                                         try {
-                                                            Object o = ois.readObject();
-                                                            String endLine = (String) o;
-                                                            if (endLine.equals("END")) {
-                                                                break;
-                                                            }
-                                                            Products newProduct = (Products) o;
-                                                            productsList.add(newProduct);
-                                                            System.out.println(newProduct.getName());
+                                                            Products products = (Products) ois.readObject();
+                                                            productsList.add(products);
+                                                            System.out.println(products.getName());
                                                         } catch (Exception e) {
                                                             break;
                                                         }
@@ -719,45 +699,48 @@ public class marketClient {
                                                         System.out.println("Select product to edit");
                                                         writer.println(scan.nextLine());
                                                         writer.flush();
-
                                                         System.out.println("would you like to change name?");
                                                         if (scan.nextLine().equals("yes")) {
-                                                            oos.writeObject(true);
+                                                            oos.writeBoolean(true);
                                                             oos.flush();
+                                                            System.out.println("Enter new name:");
                                                             writer.println(scan.nextLine());
                                                             writer.flush();
                                                         } else {
-                                                            oos.writeObject(false);
+                                                            oos.writeBoolean(false);
                                                             oos.flush();
                                                         }
                                                         System.out.println("would you like to change description?");
                                                         if (scan.nextLine().equals("yes")) {
-                                                            oos.writeObject(true);
+                                                            oos.writeBoolean(true);
                                                             oos.flush();
+                                                            System.out.println("Enter new description:");
                                                             writer.println(scan.nextLine());
                                                             writer.flush();
                                                         } else {
-                                                            oos.writeObject(false);
+                                                            oos.writeBoolean(false);
                                                             oos.flush();
                                                         }
                                                         System.out.println("would you like to change price?");
                                                         if (scan.nextLine().equals("yes")) {
-                                                            oos.writeObject(true);
+                                                            oos.writeBoolean(true);
                                                             oos.flush();
+                                                            System.out.println("Enter new price:");
                                                             writer.println(scan.nextLine());
                                                             writer.flush();
                                                         } else {
-                                                            oos.writeObject(false);
+                                                            oos.writeBoolean(false);
                                                             oos.flush();
                                                         }
                                                         System.out.println("would you like to change quantity?");
                                                         if (scan.nextLine().equals("yes")) {
-                                                            oos.writeObject(true);
+                                                            oos.writeBoolean(true);
                                                             oos.flush();
+                                                            System.out.println("Enter new quantity:");
                                                             writer.println(scan.nextLine());
                                                             writer.flush();
                                                         } else {
-                                                            oos.writeObject(false);
+                                                            oos.writeBoolean(false);
                                                             oos.flush();
                                                         }
                                                     } else {
@@ -768,20 +751,15 @@ public class marketClient {
                                                     productsList = new ArrayList<>();
                                                     do {
                                                         try {
-                                                            Object o = ois.readObject();
-                                                            String endLine = (String) o;
-                                                            if (endLine.equals("END")) {
-                                                                break;
-                                                            }
-                                                            Products newProduct = (Products) o;
-                                                            productsList.add(newProduct);
-                                                            System.out.println(newProduct.getName());
+                                                            Products products = (Products) ois.readObject();
+                                                            productsList.add(products);
+                                                            System.out.println(products.getName());
                                                         } catch (Exception e) {
                                                             break;
                                                         }
                                                     } while (true);
                                                     if (!productsList.isEmpty()) {
-                                                        System.out.println("Which product would you like to edit?");
+                                                        System.out.println("Which product would you like to remove?");
                                                         menuChoice = scan.nextInt();
                                                         scan.nextLine();
                                                         writer.println(menuChoice);
@@ -798,7 +776,15 @@ public class marketClient {
                                                     }
                                                     Seller currentSeller = (Seller) ois.readObject();
                                                     Store currentStore = (Store) ois.readObject();
-                                                    currentSeller.assignProduct(fileName, currentStore);
+                                                    try {
+                                                        currentStore.assignProduct(fileName);
+                                                        for (Store stores : currentSeller.getStore()) {
+                                                            if (stores.getName().equals(currentStore.getName())) {
+                                                                currentSeller.getStore().set(currentSeller.getStore().
+                                                                        indexOf(stores), currentStore);
+                                                            }
+                                                        }
+                                                    } catch (Exception e) {}
                                                     oos.writeObject(currentSeller);
                                                     oos.flush();
                                                     oos.writeObject(currentStore);
@@ -828,7 +814,7 @@ public class marketClient {
                                         } else {
                                             do {
                                                 String storeName = reader.readLine();
-                                                if (!storeName.equals("END")) {
+                                                if (storeName.equals("END")) {
                                                     break;
                                                 } else {
                                                     System.out.println(storeName);
@@ -837,11 +823,45 @@ public class marketClient {
                                             System.out.println("What store would you like to edit?");
                                             menuChoice = scan.nextInt();
                                             scan.nextLine();
+                                            writer.println(menuChoice);
+                                            writer.flush();
+                                            System.out.println("Enter the name of the booth: ");
+                                            String productName = scan.nextLine();
+                                            writer.println(productName);
+                                            writer.flush();
+                                            break;
                                         }
+                                    case 4:
+                                        response = reader.readLine();
+                                        if (response.equals("EMPTY")) {
+                                            System.out.println("You have no booth to remove.");
+                                        } else {
+                                            do {
+                                                String storeName = reader.readLine();
+                                                if (storeName.equals("END")) {
+                                                    break;
+                                                } else {
+                                                    System.out.println(storeName);
+                                                }
+                                            } while (true);
+                                            System.out.println("Which booth do you want to remove?");
+                                            writer.println(scan.nextLine());
+                                            writer.flush();
+                                        }
+                                        break;
+                                    case 5:
+                                        marketMenu = false;
+                                        break;
                                 }
                             } while (marketMenu);
+                            break;
+                        case 3:
+                            mainMenu = false;
+                            break;
                     }
                 } while (mainMenu);
+
+
             }
 
 
@@ -855,4 +875,3 @@ public class marketClient {
 
     }
 }
-
