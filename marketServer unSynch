@@ -277,7 +277,7 @@ public class marketServer {
     }
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(42069);
+            ServerSocket serverSocket = new ServerSocket(4242);
             Socket socket = serverSocket.accept();
             System.out.println("accepted");
             String searchKeyword;
@@ -641,8 +641,8 @@ public class marketServer {
                                             writer.println(pastPurchases.split(",")[0]);
                                             writer.flush();
                                         }
-                                        writer.println("END");
-                                        writer.flush();
+                                        oos.writeObject("END");
+                                        oos.flush();
                                         break;
                                     //passes:
                                     /**
@@ -654,8 +654,8 @@ public class marketServer {
                                             oos.writeObject(cartItem);
                                             oos.flush();
                                         }
-                                        writer.println("END");
-                                        writer.flush();
+                                        oos.writeObject("END");
+                                        oos.flush();
                                         //passes:
                                         /**
                                          * 1. n Products using ObjectOutputStream
@@ -839,8 +839,8 @@ public class marketServer {
                                             writer.println(storeInList.getName());
                                             writer.flush();
                                         }
-                                        writer.println("END");
-                                        writer.flush();
+                                        oos.writeObject("END");
+                                        oos.flush();
                                         Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()) - 1);
                                         /**
                                          * 1. View products
@@ -860,8 +860,8 @@ public class marketServer {
                                                         oos.writeObject(productInStore);
                                                         oos.flush();
                                                     }
-                                                    writer.println("END OF PRODUCTS");
-                                                    writer.flush();
+                                                    oos.writeObject("END OF PRODUCTS");
+                                                    oos.flush();
                                                     break;
                                                 case 2 :    //2. View sales
                                                     writer.println(String.format("%d", currentStore.getSales()));
@@ -884,8 +884,8 @@ public class marketServer {
                                                         writer.println(products.getName());
                                                         writer.flush();
                                                     }
-                                                    writer.println("END");
-                                                    writer.flush();
+                                                    oos.writeObject("END");
+                                                    oos.flush();
                                                     if (!currentStore.getGoods().isEmpty()) {
                                                         Integer index = Integer.parseInt(reader.readLine()) - 1;
                                                         Products editingProduct = currentStore.getGoods().get(index);
@@ -919,8 +919,8 @@ public class marketServer {
                                                         writer.println(products.getName());
                                                         writer.flush();
                                                     }
-                                                    writer.println("END");
-                                                    writer.flush();
+                                                    oos.writeObject("END");
+                                                    oos.flush();
                                                     if (!currentStore.getGoods().isEmpty()) {
                                                         Integer index = Integer.parseInt(reader.readLine()) - 1;
                                                         currentStore.getGoods().remove(index);
@@ -941,25 +941,6 @@ public class marketServer {
                                                     oos.flush();
                                                     oos.writeObject(currentStore);
                                                     oos.flush();
-                                                    /*do {
-                                                        try {
-                                                            Object o = ois.readObject();
-                                                            if (o.getClass() == String.class) {
-                                                                break;
-                                                            } else if (o.getClass() == Products.class) {
-                                                                currentStore.addGoods((Products) o);
-                                                            }
-                                                        } catch (ClassNotFoundException e) {
-                                                            success = false;
-                                                            break;
-                                                        }
-                                                    } while(true);
-                                                    if (success) {
-                                                        writer.println("SUCCESS");
-                                                    } else {
-                                                        writer.println("ERROR");
-                                                    }
-                                                    writer.flush();*/
                                                     try {
                                                         current = (Seller) ois.readObject();
                                                         currentStore = (Store) ois.readObject();
@@ -1009,8 +990,8 @@ public class marketServer {
                                                 writer.println(store.getName());
                                                 writer.flush();
                                             }
-                                            writer.println("END");
-                                            writer.flush();
+                                            oos.writeObject("END");
+                                            oos.flush();
                                             int index = Integer.parseInt(reader.readLine()) - 1;
                                             current.getStore().get(index).setName(reader.readLine());
                                         }
@@ -1029,19 +1010,19 @@ public class marketServer {
                                      * **/
                                     case 4: //4. Remove booth
                                         if (!current.getStore().isEmpty()) {
-                                            writer.println("EMPTY");
+                                            writer.println("NOT EMPTY");
                                             writer.flush();
                                             for (Store store : current.getStore()) {
                                                 writer.println(store.getName());
                                             }
-                                            writer.println("END");
-                                            writer.flush();
+                                            oos.writeObject("END");
+                                            oos.flush();
                                             int index = Integer.parseInt(reader.readLine()) - 1;
                                             ArrayList<Store> newList = current.getStore();
                                             newList.remove(index);
                                             current.setStore(newList);
                                         } else {
-                                            writer.println("NOT EMPTY");
+                                            writer.println("EMPTY");
                                             writer.flush();
                                         }
                                         break;
