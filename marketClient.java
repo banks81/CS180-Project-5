@@ -615,21 +615,237 @@ public class marketClient {
                                         password = scan.nextLine();
                                         writer.println(password);
                                         writer.flush();
-
-
+                                    case 4:
+                                        writer.println(4);
+                                        writer.flush();
+                                        socket.close();
+                                        return;
+                                    default:
+                                        editAcc = false;
+                                        break;
                                 }
-
-
                             } while (editAcc);
+                        case 2: //view farmer's market
+                            boolean marketMenu = true;
+                            System.out.println("what would you like to do?");
+                            menuChoice = scan.nextInt();
+                            scan.nextLine();
+                            //GUI
+                            //  1. View booths
+                            //  2. Add booth
+                            //  3. Edit booth
+                            //  4. Remove booth
+                            //  5. Go back
+                            writer.println(menuChoice);
+                            writer.flush();
+                            do {
+                                switch (menuChoice) {
+                                    case 1: //view booths
+                                        do {
+                                            String storeName = reader.readLine();
+                                            if (storeName.equals("END")) {
+                                                break;
+                                            }
+                                            System.out.println(storeName);
+                                        } while (true);
 
+                                        System.out.println("Select booth");
 
+                                        menuChoice = scan.nextInt();
+                                        scan.nextLine();
+                                        writer.println(menuChoice);
+                                        writer.flush();
+
+                                        //GUI
+                                        //  1. View products
+                                        //  2. View sales
+                                        //  3. Add product
+                                        //  4. Edit product
+                                        //  5. Remove product
+                                        //  6. Import product csv file
+                                        //  7. Export product csv file
+                                        //  8. Go back
+
+                                        System.out.println("What would you like to do?");
+
+                                        menuChoice = scan.nextInt();
+                                        scan.nextLine();
+                                        writer.println(menuChoice);
+                                        writer.flush();
+                                        boolean boothMenu = true;
+
+                                        do {
+                                            switch (menuChoice) {
+                                                case 1:
+                                                    do {
+                                                        try {
+                                                            Object o = ois.readObject();
+                                                            System.out.println(((Products) o).getName());
+                                                        } catch (Exception e) {
+                                                            break;
+                                                        }
+                                                    } while (true);
+                                                    break;
+                                                case 2:
+                                                    System.out.printf("The sales is %s.\n", reader.readLine());
+                                                    break;
+                                                case 3:
+                                                    do {
+                                                        System.out.println("Enter product name (0 to stop)");
+                                                        String productName = scan.nextLine();
+                                                        if (productName.equals("0")) {
+                                                            writer.println("END OF PRODUCT");
+                                                            writer.flush();
+                                                            break;
+                                                        } else {
+                                                            writer.println(productName);
+                                                            writer.flush();
+                                                        }
+                                                    } while (true);
+                                                    break;
+                                                case 4: //edit products
+                                                    ArrayList<Products> productsList = new ArrayList<>();
+                                                    do {
+                                                        try {
+                                                            Object o = ois.readObject();
+                                                            String endLine = (String) o;
+                                                            if (endLine.equals("END")) {
+                                                                break;
+                                                            }
+                                                            Products newProduct = (Products) o;
+                                                            productsList.add(newProduct);
+                                                            System.out.println(newProduct.getName());
+                                                        } catch (Exception e) {
+                                                            break;
+                                                        }
+                                                    } while (true);
+                                                    if (!productsList.isEmpty()) {
+                                                        System.out.println("Select product to edit");
+                                                        writer.println(scan.nextLine());
+                                                        writer.flush();
+
+                                                        System.out.println("would you like to change name?");
+                                                        if (scan.nextLine().equals("yes")) {
+                                                            oos.writeObject(true);
+                                                            oos.flush();
+                                                            writer.println(scan.nextLine());
+                                                            writer.flush();
+                                                        } else {
+                                                            oos.writeObject(false);
+                                                            oos.flush();
+                                                        }
+                                                        System.out.println("would you like to change description?");
+                                                        if (scan.nextLine().equals("yes")) {
+                                                            oos.writeObject(true);
+                                                            oos.flush();
+                                                            writer.println(scan.nextLine());
+                                                            writer.flush();
+                                                        } else {
+                                                            oos.writeObject(false);
+                                                            oos.flush();
+                                                        }
+                                                        System.out.println("would you like to change price?");
+                                                        if (scan.nextLine().equals("yes")) {
+                                                            oos.writeObject(true);
+                                                            oos.flush();
+                                                            writer.println(scan.nextLine());
+                                                            writer.flush();
+                                                        } else {
+                                                            oos.writeObject(false);
+                                                            oos.flush();
+                                                        }
+                                                        System.out.println("would you like to change quantity?");
+                                                        if (scan.nextLine().equals("yes")) {
+                                                            oos.writeObject(true);
+                                                            oos.flush();
+                                                            writer.println(scan.nextLine());
+                                                            writer.flush();
+                                                        } else {
+                                                            oos.writeObject(false);
+                                                            oos.flush();
+                                                        }
+                                                    } else {
+                                                        System.out.println("No products in the chosen store");
+                                                    }
+                                                    break;
+                                                case 5: //removing product
+                                                    productsList = new ArrayList<>();
+                                                    do {
+                                                        try {
+                                                            Object o = ois.readObject();
+                                                            String endLine = (String) o;
+                                                            if (endLine.equals("END")) {
+                                                                break;
+                                                            }
+                                                            Products newProduct = (Products) o;
+                                                            productsList.add(newProduct);
+                                                            System.out.println(newProduct.getName());
+                                                        } catch (Exception e) {
+                                                            break;
+                                                        }
+                                                    } while (true);
+                                                    if (!productsList.isEmpty()) {
+                                                        System.out.println("Which product would you like to edit?");
+                                                        menuChoice = scan.nextInt();
+                                                        scan.nextLine();
+                                                        writer.println(menuChoice);
+                                                        writer.flush();
+                                                    } else {
+                                                        System.out.println("No products in the chosen store");
+                                                    }
+                                                    break;
+                                                case 6:
+                                                    System.out.println("Enter csv file name");
+                                                    String fileName = scan.nextLine();
+                                                    if (!fileName.contains("csv")) {
+                                                        fileName = fileName + ".csv";
+                                                    }
+                                                    Seller currentSeller = (Seller) ois.readObject();
+                                                    Store currentStore = (Store) ois.readObject();
+                                                    currentSeller.assignProduct(fileName, currentStore);
+                                                    oos.writeObject(currentSeller);
+                                                    oos.flush();
+                                                    oos.writeObject(currentStore);
+                                                    oos.flush();
+                                                    break;
+                                                case 7:
+                                                    currentStore = (Store) ois.readObject();
+                                                    fileName = scan.nextLine();
+                                                    currentStore.writeProductFile(fileName);
+                                                    break;
+                                                case 8:
+                                                    boothMenu = false;
+                                                    break;
+                                            }
+                                        } while (boothMenu);
+                                        break;
+                                    case 2:
+                                        System.out.println("Enter booth name");
+                                        String boothname = scan.nextLine();
+                                        writer.println(boothname);
+                                        writer.flush();
+                                        break;
+                                    case 3:
+                                        String response = reader.readLine();
+                                        if (response.equals("EMPTY")) {
+                                            System.out.println("You have no booth to edit.");
+                                        } else {
+                                            do {
+                                                String storeName = reader.readLine();
+                                                if (!storeName.equals("END")) {
+                                                    break;
+                                                } else {
+                                                    System.out.println(storeName);
+                                                }
+                                            } while (true);
+                                            System.out.println("What store would you like to edit?");
+                                            menuChoice = scan.nextInt();
+                                            scan.nextLine();
+                                        }
+                                }
+                            } while (marketMenu);
                     }
-
-
-
                 } while (mainMenu);
-
-
             }
 
 
