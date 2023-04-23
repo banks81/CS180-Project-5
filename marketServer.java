@@ -291,6 +291,7 @@ public class marketServer {
     public void run() {
         try {
             System.out.println("accepted");
+            System.out.println("accepted");
             String searchKeyword;
             StringBuilder searchResult = new StringBuilder();
 
@@ -337,6 +338,7 @@ public class marketServer {
                         writer.flush();
                         if (reader.readLine().equals("NO")) {
                             serverSocket.close();
+                            writeFile();
                             return;
                         } else {
                             System.out.println("try again!");
@@ -361,6 +363,7 @@ public class marketServer {
                         ois.close();
                         oos.close();
                         serverSocket.close();
+                        writeFile();
                         return;
                     }
                 }
@@ -508,6 +511,7 @@ public class marketServer {
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
                                             serverSocket.close();
+                                            writeFile();
                                             return;
                                         }
                                         break;
@@ -540,10 +544,12 @@ public class marketServer {
                                                 for (Products foundProduct : searchResults) {
                                                     writer.println(foundProduct.getName());
                                                     writer.flush();
+                                                    System.out.println(foundProduct.getName());
                                                 }
                                                 writer.println("END");
                                                 writer.flush();
                                                 int searchIndex = Integer.parseInt(reader.readLine());
+                                                System.out.println("Product " + searchIndex);
                                                 do {
                                                     if (searchIndex <= searchResults.size()) {
                                                         Products product = searchResults.get(searchIndex - 1);
@@ -651,9 +657,10 @@ public class marketServer {
                                         for (String pastPurchases : current.getPastPurchase()) {
                                             writer.println(pastPurchases.split(",")[0]);
                                             writer.flush();
+                                            System.out.println(pastPurchases);
                                         }
-                                        oos.writeObject("END");
-                                        oos.flush();
+                                        writer.println("END");
+                                        writer.flush();
                                         break;
                                     //passes:
                                     /**
@@ -664,6 +671,7 @@ public class marketServer {
                                         for (Products cartItem : current.getShoppingCart()) {
                                             oos.writeObject(cartItem);
                                             oos.flush();
+                                            System.out.println(cartItem.getName());
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
@@ -696,62 +704,65 @@ public class marketServer {
                                          * 2. Remove an item
                                          * 3. Return to Market Menu
                                          * **/
-                                        switch (Integer.parseInt(reader.readLine())) {
-                                            case 1:
-                                                for (Products cartItem : current.getShoppingCart()) {
-                                                    if (cartItem.getQuantity() > 1) {
-                                                        cartItem.setQuantity(cartItem.getQuantity() - 1);
-                                                        cartItem.setInShoppingCart(cartItem.getInShoppingCart() - 1);
-                                                        cartItem.setSales(cartItem.getSales() + 1);
+                                        if (!current.getShoppingCart().isEmpty()) {
+                                            switch (Integer.parseInt(reader.readLine())) {
+                                                case 1:
+                                                    for (Products cartItem : current.getShoppingCart()) {
+                                                        if (cartItem.getQuantity() > 1) {
+                                                            cartItem.setQuantity(cartItem.getQuantity() - 1);
+                                                            cartItem.setInShoppingCart(cartItem.getInShoppingCart() - 1);
+                                                            cartItem.setSales(cartItem.getSales() + 1);
 
-                                                        current.removeFromShoppingCart(cartItem);
-                                                        current.addProducts(cartItem.getName(), 1);
-                                                    } else {
-                                                        writer.println(cartItem.getName());
-                                                        writer.flush();
+                                                            current.removeFromShoppingCart(cartItem);
+                                                            current.addProducts(cartItem.getName(), 1);
+                                                        } else {
+                                                            writer.println(cartItem.getName());
+                                                            writer.flush();
+                                                        }
                                                     }
-                                                }
-                                                writer.println("SUCCESS");
-                                                writer.flush();
-                                                break;
-                                            //passes:
-                                            /**
-                                             * 1. if some products are out of stock, this passes n Strings of products' name
-                                             * 2. SUCCESS
-                                             *
-                                             * StringBuilder failedItems = new StringBuilder();
-                                             * do {
-                                             *     String potentialFailure = reader.readLine();
-                                             *     if (potentialFailure.equals("SUCCESS")) {
-                                             *         break;
-                                             *     } else {
-                                             *         failedItems.append(potentialFailure);
-                                             *         failedItems.append(", ");
-                                             *     }
-                                             * } while(true);
-                                             * ...
-                                             * if (!failedItems.isempty()) {
-                                             *     failedItems.delete(failedItems.length() - 2, failedItems.length());
-                                             *     String errorMessage = String.format("The items %s is out of stock.", failedItems.toString());
-                                             *     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
-                                             * }
-                                             * **/
-                                            case 2:
-                                                int indexNo = Integer.parseInt(reader.readLine()) - 1;
-                                                current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
-                                                writer.println("SUCCESS");
-                                                writer.flush();
-                                                break;
-                                            //expects:
-                                            /**
-                                             * 1. integer index for deleting product
-                                             * **/
-                                            //passes:
-                                            /**
-                                             * 1. SUCCESS
-                                             * **/
-                                            default:
-                                                break;
+                                                    writer.println("SUCCESS");
+                                                    writer.flush();
+                                                    break;
+                                                //passes:
+                                                /**
+                                                 * 1. if some products are out of stock, this passes n Strings of products' name
+                                                 * 2. SUCCESS
+                                                 *
+                                                 * StringBuilder failedItems = new StringBuilder();
+                                                 * do {
+                                                 *     String potentialFailure = reader.readLine();
+                                                 *     if (potentialFailure.equals("SUCCESS")) {
+                                                 *         break;
+                                                 *     } else {
+                                                 *         failedItems.append(potentialFailure);
+                                                 *         failedItems.append(", ");
+                                                 *     }
+                                                 * } while(true);
+                                                 * ...
+                                                 * if (!failedItems.isempty()) {
+                                                 *     failedItems.delete(failedItems.length() - 2, failedItems.length());
+                                                 *     String errorMessage = String.format("The items %s is out of stock.", failedItems.toString());
+                                                 *     JOptionPane.showMessageDialog(null, errorMessage, "title", JOptionPane.ERROR_MESSAGE);
+                                                 * }
+                                                 * **/
+                                                case 2:
+                                                    int indexNo = Integer.parseInt(reader.readLine()) - 1;
+                                                    current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
+                                                    writer.println("SUCCESS");
+                                                    writer.flush();
+                                                    break;
+                                                //expects:
+                                                /**
+                                                 * 1. integer index for deleting product
+                                                 * **/
+                                                //passes:
+                                                /**
+                                                 * 1. SUCCESS
+                                                 * **/
+                                                default:
+                                                    break;
+                                            }
+                                            break;
                                         }
                                         break;
                                     case 7:
@@ -764,6 +775,7 @@ public class marketServer {
                                         break;
                                 }
                             } while (marketPlace);
+                            break;
                         case 3:
                             serverSocket.close();
                             mainmenu = false;
@@ -850,8 +862,8 @@ public class marketServer {
                                             writer.println(storeInList.getName());
                                             writer.flush();
                                         }
-                                        oos.writeObject("END");
-                                        oos.flush();
+                                        writer.println("END");
+                                        writer.flush();
                                         Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()) - 1);
                                         /**
                                          * 1. View products
@@ -883,17 +895,18 @@ public class marketServer {
                                                     while (productImport) {
                                                         if (reader.readLine().equals("END OF PRODUCT")) {
                                                             productImport = false;
-                                                            break;
                                                         } else {    //product in %s;;%s;;%s;;%d;;%.2f format
                                                             String newProduct = reader.readLine();
-                                                            currentStore.addGoods(productString(newProduct));
+                                                            currentStore.addGoods(new Products(newProduct, 0,
+                                                                    0, "Description", 0,
+                                                                    currentStore.getName(), 0));
                                                         }
                                                     }
                                                     break;
                                                 case 4 :    //4. Edit product
                                                     for (Products products : currentStore.getGoods()) {
-                                                        writer.println(products.getName());
-                                                        writer.flush();
+                                                        oos.writeObject(products);
+                                                        oos.flush();
                                                     }
                                                     oos.writeObject("END");
                                                     oos.flush();
@@ -912,6 +925,7 @@ public class marketServer {
                                                         if (ois.readBoolean()) {    //if changing quantity
                                                             editingProduct.setQuantity(Integer.parseInt(reader.readLine()));
                                                         }
+                                                        currentStore.getGoods().set(index, editingProduct);
                                                     }
                                                     break;
                                                 //expects:
@@ -927,8 +941,8 @@ public class marketServer {
                                                  * **/
                                                 case 5 :    //5. Remove product
                                                     for (Products products : currentStore.getGoods()) {
-                                                        writer.println(products.getName());
-                                                        writer.flush();
+                                                        oos.writeObject(products);
+                                                        oos.flush();
                                                     }
                                                     oos.writeObject("END");
                                                     oos.flush();
@@ -1000,9 +1014,10 @@ public class marketServer {
                                             for (Store store : current.getStore()) {
                                                 writer.println(store.getName());
                                                 writer.flush();
+                                                System.out.println(store.getName());
                                             }
-                                            oos.writeObject("END");
-                                            oos.flush();
+                                            writer.println("END");
+                                            writer.flush();
                                             int index = Integer.parseInt(reader.readLine()) - 1;
                                             current.getStore().get(index).setName(reader.readLine());
                                         }
@@ -1053,6 +1068,10 @@ public class marketServer {
                                         break;
                                 }
                             } while(marketMenu);
+                            break;
+                        case 3:
+                            mainmenu = false;
+                            break;
                     }
                 } while(mainmenu);
             }
@@ -1062,7 +1081,6 @@ public class marketServer {
             oos.close();
             reader.close();
             writer.close();
-
             writeFile();
         } catch (IOException e) {
             e.printStackTrace();
