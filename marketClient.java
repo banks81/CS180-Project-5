@@ -260,82 +260,78 @@ public class marketClient {
                             boolean marketPlace = true;
                             do {
                                 //Use GUI to tell what the user wants to do
-                                System.out.println("what choice?");
+                                System.out.println("Refer to: case 2: //view farmer's market");
                                 int decision = scan.nextInt();
                                 scan.nextLine();
                                 writer.println(decision);
                                 writer.flush();
-                                System.out.println("printed " + decision + " to server");
                                 switch (decision) {
                                     case 1:
-                                        System.out.println("case 1");
                                         ArrayList<Products> productsList = new ArrayList();
-                                        while (reader.readLine().equals("END")) {
-                                            productsList.add((Products) ois.readObject());
-                                        }
+                                        do {
+                                            try {
+                                                Products products = (Products) ois.readObject();
+                                                productsList.add(products);
+                                                System.out.println(products.getName() + " received");
+                                            } catch (Exception e) {
+                                                break;
+                                            }
+                                        } while (true);
                                         //GUI
                                         //  show the list of products and make a selection
-                                        for (int i = 0; i < productsList.size(); i++) {
-                                            System.out.println(i + 1 + ". " + productsList.get(i));
-                                        }
-                                        System.out.println("which product would you like to look at?");
-                                        int marketChoice = scan.nextInt();
-                                        scan.nextLine();
-                                        writer.println(marketChoice);
-                                        writer.flush();
-                                        System.out.println("printed" + marketChoice + "to server");
-                                        if (marketChoice <= productsList.size()) {
-                                            Products productOfChoice = productsList.get(marketChoice - 1);
-                                            /**
-                                             * 1. add one to cart
-                                             * 2. purchase now
-                                             * 3. go back to products list
-                                             * **/
-                                            System.out.println("What would you like to do? 1. add one to cart" +
-                                                    "\n 2. purchase now \n3. go back to products list");
-                                            placeholderGUI = scan.nextLine(); //you may need to create another variable, I'm not sure
-                                            writer.println(placeholderGUI);  //for now I'm just using placeholderGUI for the choice
-                                            writer.flush();
-                                            System.out.println("sent " + placeholderGUI + " to choice");
-                                            switch (Integer.parseInt(placeholderGUI)) {
-                                                case 1: //add to shopping cart
-                                                    break; //the server doesn't have it reading or writing anything
-                                                case 2: //purchase now
-                                                    //GUI
-                                                    //  asks 'how many would you like to purchase?'
-                                                    //  have an option to buy 0 or cancel
-                                                    //  if cancel, send 0 to server
-                                                    System.out.println("How many would you like to purchase?");
-                                                    int quantity = scan.nextInt();
-                                                    scan.nextLine();
-                                                    writer.println(quantity);
-                                                    writer.flush();
-                                                    String boughtConfirmation = reader.readLine();
-                                                    if (boughtConfirmation.equals("DID NOT PURCHASE")) { //this means they entered 0 or cancelled
+                                        if (!productsList.isEmpty()) {
+                                            System.out.println("which product would you like to look at?");
+                                            int marketChoice = scan.nextInt();
+                                            scan.nextLine();
+                                            writer.println(marketChoice);
+                                            if (marketChoice <= productsList.size()) {
+                                                Products productOfChoice = productsList.get(marketChoice - 1);
+                                                /**
+                                                 * 1. add one to cart
+                                                 * 2. purchase now
+                                                 * 3. go back to products list
+                                                 * **/
+                                                System.out.println("1. add one to cart//2. purchase now//3. go back to products list");
+                                                placeholderGUI = scan.nextLine(); //you may need to create another variable, I'm not sure
+                                                writer.println(placeholderGUI);  //for now I'm just using placeholderGUI for the choice
+                                                writer.flush();
+                                                switch (Integer.parseInt(placeholderGUI)) {
+                                                    case 1: //add to shopping cart
+                                                        break; //the server doesn't have it reading or writing anything
+                                                    case 2: //purchase now
                                                         //GUI
-                                                        //  pop-up that says something along the lines of "ok! your order was cancelled"
-                                                        System.out.println("your order was cancelled!");
-                                                    } else if (boughtConfirmation.equals("SUCCESS")) { //this means product was bought
-                                                        //GUI
-                                                        //  some message about your product was bought successfully
-                                                    } else if (boughtConfirmation.equals("ERROR")) { //this means they tried to buy
-                                                                                                    //more than allowed amount
-                                                        //GUI
-                                                        //  some message like "there aren't that many of this product available!"
-                                                    }
-                                                    break;
-                                                default:
-                                                    break;
-
+                                                        //  asks 'how many would you like to purchase?'
+                                                        //  have an option to buy 0 or cancel
+                                                        //  if cancel, send 0 to server
+                                                        System.out.println("How many would you like to purchase?");
+                                                        int quantity = scan.nextInt();
+                                                        scan.nextLine();
+                                                        writer.println(quantity);
+                                                        writer.flush();
+                                                        String boughtConfirmation = reader.readLine();
+                                                        if (boughtConfirmation.equals("DID NOT PURCHASE")) { //this means they entered 0 or cancelled
+                                                            //GUI
+                                                            //  pop-up that says something along the lines of "ok! your order was cancelled"
+                                                            System.out.println("your order was cancelled!");
+                                                        } else if (boughtConfirmation.equals("SUCCESS")) { //this means product was bought
+                                                            //GUI
+                                                            //  some message about your product was bought successfully
+                                                        } else if (boughtConfirmation.equals("ERROR")) { //this means they tried to buy
+                                                            //more than allowed amount
+                                                            //GUI
+                                                            //  some message like "there aren't that many of this product available!"
+                                                        }
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+                                            } else if (marketChoice == productsList.size() + 2) {
+                                                return;
                                             }
-
-                                        } else if (marketChoice == productsList.size() + 2) {
-                                            return;
+                                        } else {
+                                            System.out.println("No products available!");
                                         }
                                         break;
-
-
-
                                     case 2: //searchProducts
                                         do {
                                             //GUI
