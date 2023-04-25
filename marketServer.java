@@ -12,10 +12,6 @@ public class marketServer {
     public static ArrayList<Store> storesList = new ArrayList<>(); //arrayList of stores in the marketplace
     public static ArrayList<Products> productsList = new ArrayList<>();
     public static ArrayList<String> customerTempCart = new ArrayList<>();
-    Socket socket;
-    public marketServer(Socket socket){
-        this.socket = socket;
-    }
     public static Products productString(String strings) {
         String[] stringsplit = strings.split(";;");
         return(new Products(stringsplit[0], Double.parseDouble(stringsplit[4]), Integer.parseInt(stringsplit[3]), stringsplit[1], 0, stringsplit[2],0 ));
@@ -279,18 +275,10 @@ public class marketServer {
             System.out.println("Program terminated.");
         }
     }
-    public static void main(String[] args) throws IOException{
-        ServerSocket serverSocket = new ServerSocket(42069);
-        System.out.println("Waiting for connection on 42069");
-        while (true){
-            Socket socket = serverSocket.accept();
-            marketServer server = new marketServer(socket);
-            new Thread(server).start();
-        }
-    }
-    public void run() {
+    public static void main(String[] args) {
         try {
-            System.out.println("accepted");
+            ServerSocket serverSocket = new ServerSocket(4242);
+            Socket socket = serverSocket.accept();
             System.out.println("accepted");
             String searchKeyword;
             StringBuilder searchResult = new StringBuilder();
@@ -372,8 +360,10 @@ public class marketServer {
                 String password = reader.readLine();
                 if (type == 1) {
                     currentUser[0] = new Customer(email, name, password);
+                    customersList.add(currentUser[0]);
                 } else {
                     currentUser[0] = new Seller(email, name, password);
+                    sellersList.add(currentUser[0]);
                 }
             }
             //Enter main menu
@@ -424,9 +414,12 @@ public class marketServer {
                                         break;
                                     case 4:
                                         customersList.remove(current);
-                                        break;
+                                        writeFile();
+                                        socket.close();
+                                        return;
                                     case 5:
                                         editAcc = false;
+                                        break;
                                 }
                             } while (editAcc);
                             break;
@@ -858,147 +851,154 @@ public class marketServer {
                             do {
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1: //1. View booths
-                                        for (Store storeInList : current.getStore()) {
-                                            writer.println(storeInList.getName());
+                                        if (!current.getStore().isEmpty()) {
+                                            for (Store storeInList : current.getStore()) {
+                                                writer.println(storeInList.getName());
+                                                writer.flush();
+                                            }
+                                            writer.println("END");
+                                            writer.flush();
+                                            Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()) - 1);
+                                            /**
+                                             * 1. View products
+                                             * 2. View sales
+                                             * 3. Add product
+                                             * 4. Edit product
+                                             * 5. Remove product
+                                             * 6. Import product csv file
+                                             * 7. Export product csv file
+                                             * 8. Go back
+                                             * **/
+                                            boolean boothmenu = true;
+                                            do {
+                                                switch (Integer.parseInt(reader.readLine())) {
+                                                    case 1:    //1. View products
+                                                        for (Products productInStore : currentStore.getGoods()) {
+                                                            oos.writeObject(productInStore);
+                                                            oos.flush();
+                                                        }
+                                                        oos.writeObject("END OF PRODUCTS");
+                                                        oos.flush();
+                                                        break;
+                                                    case 2:    //2. View sales
+                                                        writer.println(String.format("%d", currentStore.getSales()));
+                                                        writer.flush();
+                                                        break;
+                                                    case 3:    //3. Add product
+                                                        boolean productImport = true;
+                                                        while (productImport) {
+                                                            if (reader.readLine().equals("END OF PRODUCT")) {
+                                                                productImport = false;
+                                                            } else {    //product in %s;;%s;;%s;;%d;;%.2f format
+                                                                String newProduct = reader.readLine();
+                                                                currentStore.addGoods(new Products(newProduct, 0,
+                                                                        0, "Description", 0,
+                                                                        currentStore.getName(), 0));
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 4:    //4. Edit product
+                                                        for (Products products : currentStore.getGoods()) {
+                                                            oos.writeObject(products);
+                                                            oos.flush();
+                                                        }
+                                                        oos.writeObject("END");
+                                                        oos.flush();
+                                                        if (!currentStore.getGoods().isEmpty()) {
+                                                            Integer index = Integer.parseInt(reader.readLine()) - 1;
+                                                            Products editingProduct = currentStore.getGoods().get(index);
+                                                            if (ois.readBoolean()) {    //if changing name
+                                                                editingProduct.setName(reader.readLine());
+                                                            }
+                                                            if (ois.readBoolean()) {    //if changing description
+                                                                editingProduct.setDescription(reader.readLine());
+                                                            }
+                                                            if (ois.readBoolean()) {    //if changing price
+                                                                editingProduct.setPrice(Double.parseDouble(reader.readLine()));
+                                                            }
+                                                            if (ois.readBoolean()) {    //if changing quantity
+                                                                editingProduct.setQuantity(Integer.parseInt(reader.readLine()));
+                                                            }
+                                                            currentStore.getGoods().set(index, editingProduct);
+                                                        }
+                                                        break;
+                                                    //expects:
+                                                    /**
+                                                     * 1. integer value of index for product desired to edit(from 1~n)
+                                                     * 2. total of 4 boolean values, potentially followed by valid* data
+                                                     *      input validation expected from the client side!
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * 1. n values of product names
+                                                     * 2. END
+                                                     * **/
+                                                    case 5:    //5. Remove product
+                                                        for (Products products : currentStore.getGoods()) {
+                                                            oos.writeObject(products);
+                                                            oos.flush();
+                                                        }
+                                                        oos.writeObject("END");
+                                                        oos.flush();
+                                                        if (!currentStore.getGoods().isEmpty()) {
+                                                            Integer index = Integer.parseInt(reader.readLine()) - 1;
+                                                            currentStore.getGoods().remove(index);
+                                                        }
+                                                        break;
+                                                    //expects:
+                                                    /**
+                                                     * integer value of index for product desired to delete(from 1~n)
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * 1. n values of product names
+                                                     * 2. END
+                                                     * **/
+                                                    case 6:    //6. Import product csv file
+                                                        //boolean success = true;
+                                                        oos.writeObject(current);
+                                                        oos.flush();
+                                                        oos.writeObject(currentStore);
+                                                        oos.flush();
+                                                        try {
+                                                            current = (Seller) ois.readObject();
+                                                            currentStore = (Store) ois.readObject();
+                                                        } catch (Exception e) {
+                                                        }    //??
+                                                        break;
+                                                    //expects:
+                                                    /**
+                                                     * 1. n Products using ObjectInputStream
+                                                     * 2. END prompt from the client
+                                                     * **/
+                                                    //passes:
+                                                    /**
+                                                     * if all products file is imported successfully : SUCCESS
+                                                     * else : ERROR
+                                                     * **/
+                                                    case 7:    //7. Export product csv file
+                                                        oos.writeObject(currentStore);
+                                                        oos.flush();
+                                                        break;
+                                                    //expects
+                                                    /**
+                                                     * desired file name. Are we expecting csv ending? if not...
+                                                     * **/
+                                                    //passes
+                                                    /**
+                                                     * if file written successful : SUCCESS
+                                                     * else : ERROR
+                                                     * **/
+                                                    case 8:    //8. Go back
+                                                        boothmenu = false;
+                                                        break;
+                                                }
+                                            } while (boothmenu);
+                                        } else {
+                                            writer.println("EMPTY");
                                             writer.flush();
                                         }
-                                        writer.println("END");
-                                        writer.flush();
-                                        Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()) - 1);
-                                        /**
-                                         * 1. View products
-                                         * 2. View sales
-                                         * 3. Add product
-                                         * 4. Edit product
-                                         * 5. Remove product
-                                         * 6. Import product csv file
-                                         * 7. Export product csv file
-                                         * 8. Go back
-                                         * **/
-                                        boolean boothmenu = true;
-                                        do {
-                                            switch (Integer.parseInt(reader.readLine())) {
-                                                case 1 :    //1. View products
-                                                    for (Products productInStore : currentStore.getGoods()) {
-                                                        oos.writeObject(productInStore);
-                                                        oos.flush();
-                                                    }
-                                                    oos.writeObject("END OF PRODUCTS");
-                                                    oos.flush();
-                                                    break;
-                                                case 2 :    //2. View sales
-                                                    writer.println(String.format("%d", currentStore.getSales()));
-                                                    writer.flush();
-                                                    break;
-                                                case 3 :    //3. Add product
-                                                    boolean productImport = true;
-                                                    while (productImport) {
-                                                        if (reader.readLine().equals("END OF PRODUCT")) {
-                                                            productImport = false;
-                                                        } else {    //product in %s;;%s;;%s;;%d;;%.2f format
-                                                            String newProduct = reader.readLine();
-                                                            currentStore.addGoods(new Products(newProduct, 0,
-                                                                    0, "Description", 0,
-                                                                    currentStore.getName(), 0));
-                                                        }
-                                                    }
-                                                    break;
-                                                case 4 :    //4. Edit product
-                                                    for (Products products : currentStore.getGoods()) {
-                                                        oos.writeObject(products);
-                                                        oos.flush();
-                                                    }
-                                                    oos.writeObject("END");
-                                                    oos.flush();
-                                                    if (!currentStore.getGoods().isEmpty()) {
-                                                        Integer index = Integer.parseInt(reader.readLine()) - 1;
-                                                        Products editingProduct = currentStore.getGoods().get(index);
-                                                        if (ois.readBoolean()) {    //if changing name
-                                                            editingProduct.setName(reader.readLine());
-                                                        }
-                                                        if (ois.readBoolean()) {    //if changing description
-                                                            editingProduct.setDescription(reader.readLine());
-                                                        }
-                                                        if (ois.readBoolean()) {    //if changing price
-                                                            editingProduct.setPrice(Double.parseDouble(reader.readLine()));
-                                                        }
-                                                        if (ois.readBoolean()) {    //if changing quantity
-                                                            editingProduct.setQuantity(Integer.parseInt(reader.readLine()));
-                                                        }
-                                                        currentStore.getGoods().set(index, editingProduct);
-                                                    }
-                                                    break;
-                                                //expects:
-                                                /**
-                                                 * 1. integer value of index for product desired to edit(from 1~n)
-                                                 * 2. total of 4 boolean values, potentially followed by valid* data
-                                                 *      input validation expected from the client side!
-                                                 * **/
-                                                //passes:
-                                                /**
-                                                 * 1. n values of product names
-                                                 * 2. END
-                                                 * **/
-                                                case 5 :    //5. Remove product
-                                                    for (Products products : currentStore.getGoods()) {
-                                                        oos.writeObject(products);
-                                                        oos.flush();
-                                                    }
-                                                    oos.writeObject("END");
-                                                    oos.flush();
-                                                    if (!currentStore.getGoods().isEmpty()) {
-                                                        Integer index = Integer.parseInt(reader.readLine()) - 1;
-                                                        currentStore.getGoods().remove(index);
-                                                    }
-                                                    break;
-                                                //expects:
-                                                /**
-                                                 * integer value of index for product desired to delete(from 1~n)
-                                                 * **/
-                                                //passes:
-                                                /**
-                                                 * 1. n values of product names
-                                                 * 2. END
-                                                 * **/
-                                                case 6 :    //6. Import product csv file
-                                                    //boolean success = true;
-                                                    oos.writeObject(current);
-                                                    oos.flush();
-                                                    oos.writeObject(currentStore);
-                                                    oos.flush();
-                                                    try {
-                                                        current = (Seller) ois.readObject();
-                                                        currentStore = (Store) ois.readObject();
-                                                    } catch (Exception e) {}    //??
-                                                    break;
-                                                //expects:
-                                                /**
-                                                 * 1. n Products using ObjectInputStream
-                                                 * 2. END prompt from the client
-                                                 * **/
-                                                //passes:
-                                                /**
-                                                 * if all products file is imported successfully : SUCCESS
-                                                 * else : ERROR
-                                                 * **/
-                                                case 7 :    //7. Export product csv file
-                                                    oos.writeObject(currentStore);
-                                                    oos.flush();
-                                                    break;
-                                                //expects
-                                                /**
-                                                 * desired file name. Are we expecting csv ending? if not...
-                                                 * **/
-                                                //passes
-                                                /**
-                                                 * if file written successful : SUCCESS
-                                                 * else : ERROR
-                                                 * **/
-                                                case 8 :    //8. Go back
-                                                    boothmenu = false;
-                                                    break;
-                                            }
-                                        } while(boothmenu);
+                                        break;
                                     case 2: //2. Add booth
                                         String storeName = reader.readLine();
                                         current.addStore(new Store(storeName, current.getName(), current.getEmail()));
