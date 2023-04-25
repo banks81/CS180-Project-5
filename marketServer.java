@@ -372,8 +372,10 @@ public class marketServer {
                 String password = reader.readLine();
                 if (type == 1) {
                     currentUser[0] = new Customer(email, name, password);
+                    customersList.add((Customer) currentUser[0]);
                 } else {
                     currentUser[0] = new Seller(email, name, password);
+                    sellersList.add((Seller) currentUser[0]);
                 }
             }
             //Enter main menu
@@ -424,6 +426,8 @@ public class marketServer {
                                         break;
                                     case 4:
                                         customersList.remove(current);
+                                        writeFile();
+                                        socket.close();
                                         break;
                                     case 5:
                                         editAcc = false;
