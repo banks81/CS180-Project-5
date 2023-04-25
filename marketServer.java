@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class marketServer {
+public class marketServer implements Runnable {
     public static ArrayList<User> customersList = new ArrayList<>();
     public static ArrayList<User> sellersList = new ArrayList<>();
     public static ArrayList<Store> storesList = new ArrayList<>(); //arrayList of stores in the marketplace
@@ -280,8 +280,8 @@ public class marketServer {
         }
     }
     public static void main(String[] args) throws IOException{
-        ServerSocket serverSocket = new ServerSocket(42069);
-        System.out.println("Waiting for connection on 42069");
+        ServerSocket serverSocket = new ServerSocket(4242);
+        System.out.println("Waiting for connection on 4242");
         while (true){
             Socket socket = serverSocket.accept();
             marketServer server = new marketServer(socket);
@@ -337,7 +337,7 @@ public class marketServer {
                         writer.println("NO USER");
                         writer.flush();
                         if (reader.readLine().equals("NO")) {
-                            serverSocket.close();
+                            //serverSocket.close();
                             writeFile();
                             return;
                         } else {
@@ -362,7 +362,7 @@ public class marketServer {
                         reader.close();
                         ois.close();
                         oos.close();
-                        serverSocket.close();
+                        //serverSocket.close();
                         writeFile();
                         return;
                     }
@@ -402,7 +402,10 @@ public class marketServer {
                                 writer.flush();
                                 switch (Integer.parseInt(reader.readLine())) {
                                     case 1:
-                                        current.setName(reader.readLine());
+                                        String name = reader.readLine();
+                                        current.setName(name);
+                                        System.out.println("set name to " + name);
+                                        editAcc = false;
                                         break;
                                     case 2:
                                         do {
@@ -420,9 +423,12 @@ public class marketServer {
                                                 break;
                                             }
                                         } while (true);
+                                        editAcc = false;
                                         break;
                                     case 3:
-                                        current.setPassword(reader.readLine());
+                                        String password = reader.readLine();
+                                        current.setPassword(password);
+                                        editAcc = false;
                                         break;
                                     case 4:
                                         customersList.remove(current);
@@ -514,7 +520,7 @@ public class marketServer {
                                                     break;
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
-                                            serverSocket.close();
+                                            //serverSocket.close();
                                             writeFile();
                                             return;
                                         }
@@ -775,13 +781,13 @@ public class marketServer {
                                     case 8:
                                         marketPlace = false;
                                         mainmenu = false;
-                                        serverSocket.close();
+                                        //serverSocket.close();
                                         break;
                                 }
                             } while (marketPlace);
                             break;
                         case 3:
-                            serverSocket.close();
+                            //serverSocket.close();
                             mainmenu = false;
                             break;
                     }
@@ -841,7 +847,7 @@ public class marketServer {
                                         break;
                                     case 4 :
                                         sellersList.remove((User) current);
-                                        serverSocket.close();
+                                        //serverSocket.close();
                                         editAcc = false;
                                         mainmenu = false;
                                         break;
@@ -1080,7 +1086,7 @@ public class marketServer {
                 } while(mainmenu);
             }
 
-            serverSocket.close();
+            //serverSocket.close();
             ois.close();
             oos.close();
             reader.close();
