@@ -1,3 +1,5 @@
+package Proj4;
+
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -345,30 +347,44 @@ public class marketServer implements Runnable {
                         }
                     }
                 } while (!userExists);
-            } else {
+            } else {  //CREATE ACCOUNT
+                //during 'else' statement it reads 'NEW USER'
                 System.out.println("new user");
                 int type = Integer.parseInt(reader.readLine());
                 String name = reader.readLine();
                 System.out.println("Name: " + name);
-                String email = reader.readLine();
-                System.out.println("email: " + email);
-                while (doesEmailExist(email)) {
-                    writer.println("ERROR");
-                    System.out.println("sent 'ERROR' to server");
-                    writer.flush();
+                boolean doesEmailExist = false;
+                String checkContinue = null;
+                String email = null;
+                do {
                     email = reader.readLine();
-                    if (email.equals("DO NOT RE-ENTER EMAIL")) {
-                        writer.close();
-                        reader.close();
-                        ois.close();
-                        oos.close();
-                        //serverSocket.close();
-                        writeFile();
-                        return;
+                    System.out.println("email: " + email);
+                    doesEmailExist = doesEmailExist(email);
+                    if (doesEmailExist) {
+                        writer.println("ERROR");
+                        writer.flush();
+                        System.out.println("sent 'ERROR' to server");
+
+                        checkContinue = reader.readLine();
+
+                        if (checkContinue.equals("NO")) {
+                            writer.close();
+                            reader.close();
+                            ois.close();
+                            oos.close();
+                            //serverSocket.close();
+                            writeFile();
+                            return;
+                        } else if (checkContinue.equals("CONTINUE")) {
+                            System.out.println("continue");
+                            continue;
+                        }
+                    } else {
+                        writer.println("SUCCESS");
+                        writer.flush();
                     }
-                }
-                writer.println("SUCCESS");
-                writer.flush();
+                } while (doesEmailExist);
+
                 String password = reader.readLine();
                 if (type == 1) {
                     currentUser[0] = new Customer(email, name, password);
@@ -483,14 +499,20 @@ public class marketServer implements Runnable {
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
-                                        int marketChoice = Integer.parseInt(reader.readLine()); //assuming it will be given from 1, not index zero
+
+                                        int marketChoice;
+                                        String listingAction = reader.readLine();
+                                        if (listingAction.equals("BACK")) {
+                                            continue;
+                                        }
+                                        marketChoice = Integer.parseInt(listingAction);
                                         if (marketChoice <= productsList.size()) {
-                                            System.out.println("product chosen: " + productsList.get(marketChoice - 1).getName());
-                                            Products productOfChoice = productsList.get(marketChoice - 1);  //They already have name, storename, description, quantity and price
+                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
+                                            Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
                                             /**
                                              * 1. add one to cart
                                              * 2. purchase now
-                                             * 3. go back to products list
+                                             * 3. go back to products lists
                                              * **/
                                             marketChoice = Integer.parseInt(reader.readLine());
                                             System.out.println("Option chosen: " + marketChoice);
@@ -501,7 +523,7 @@ public class marketServer implements Runnable {
                                                     productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
                                                     System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
-                                                case 2:
+                                                case 0:
                                                     System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() > quantity) {
@@ -524,6 +546,7 @@ public class marketServer implements Runnable {
                                             writeFile();
                                             return;
                                         }
+                                        System.out.println("Alex -- broke");
                                         break;
                                     //expects:
                                     /**
