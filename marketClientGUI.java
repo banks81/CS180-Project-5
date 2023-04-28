@@ -906,6 +906,9 @@ public class marketClientGUI implements Runnable {
                 writer.println("3");
                 writer.flush();
 
+                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest price!\n" +
+                        "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
+
             }
         });
         quantitySort.addActionListener(new ActionListener() {
@@ -913,6 +916,8 @@ public class marketClientGUI implements Runnable {
                 //TODO: pull product list, sort it, return product list OR call pre-defined sort method
                 writer.println("4");
                 writer.flush();
+                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest availability!\n" +
+                        "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
 
             }
         });
