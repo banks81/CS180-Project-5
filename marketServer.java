@@ -1,5 +1,3 @@
-package Proj4;
-
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -527,9 +525,14 @@ public class marketServer implements Runnable {
                                             switch (marketChoice) {
                                                 case 1:
                                                     System.out.println("add one to cart");
-                                                    current.addToShoppingCart(productOfChoice, 1);
-                                                    productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    if (productOfChoice.getQuantity() >= 1) {
+                                                        current.addToShoppingCart(productOfChoice, 1);
+                                                        productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
+                                                        System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    } else {
+                                                        System.out.println("quantity was less than 1, could not add to cart");
+
+                                                    }
                                                     break;
                                                 case 0:
                                                     System.out.println("purchase now");
@@ -537,6 +540,7 @@ public class marketServer implements Runnable {
                                                     if (productOfChoice.getQuantity() > quantity) {
                                                         productOfChoice.setQuantity(productOfChoice.getQuantity() - quantity);
                                                         productOfChoice.setSales(productOfChoice.getSales() + quantity);
+                                                        current.addProducts(productOfChoice.getName(), quantity);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
                                                     } else {
@@ -598,8 +602,15 @@ public class marketServer implements Runnable {
                                                         oos.flush();
                                                         switch (Integer.parseInt(reader.readLine())) {
                                                             case 1:
-                                                                current.addToShoppingCart(product, 1);
-                                                                product.setInShoppingCart(product.getInShoppingCart() + 1);
+                                                                if (product.getQuantity() >= 1) {
+                                                                    current.addToShoppingCart(product, 1);
+                                                                    product.setInShoppingCart(product.getInShoppingCart() + 1);
+                                                                    writer.println("SUCCESS");
+                                                                    writer.flush();
+                                                                } else {
+                                                                    writer.println("FAILED");
+                                                                    writer.flush();
+                                                                }
                                                                 break;
                                                             case 2:
                                                                 do {
@@ -612,7 +623,7 @@ public class marketServer implements Runnable {
                                                                     } else {
                                                                         writer.println("FAILED"); //out of stock, assuming that the user does not get to back out
                                                                         writer.flush();
-
+                                                                        break;
                                                                     }
                                                                 } while (true);
                                                             default:
@@ -790,10 +801,17 @@ public class marketServer implements Runnable {
                                                  * }
                                                  * **/
                                                 case 2:
-                                                    int indexNo = Integer.parseInt(reader.readLine()) - 1;
-                                                    current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
-                                                    writer.println("SUCCESS");
-                                                    writer.flush();
+                                                    try {
+                                                        int indexNo = Integer.parseInt(reader.readLine()) - 1;
+                                                        System.out.println("recieved " + indexNo);
+                                                        if (indexNo != -1) {
+                                                            System.out.println(current.getShoppingCart().get(indexNo));
+                                                            current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
+                                                        }
+                                                    } catch (Exception e) {
+                                                        System.out.println("caught an exception");
+                                                        break;
+                                                    }
                                                     break;
                                                 //expects:
                                                 /**
