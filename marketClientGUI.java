@@ -524,7 +524,17 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("1");
                 writer.flush();
+
+                //Reset information
                 productsList = new ArrayList<>();
+                productsList.clear();
+                listingsPnl.remove(productsDropdown);
+                listingsPnl.remove(viewProduct);
+                productsDropdown = new JComboBox();
+                listingsPnl.add(productsDropdown);
+                listingsPnl.add(viewProduct);
+
+                //View the listings
                 do {
                     try {
                         Products newProduct = (Products) ois.readObject();
@@ -540,6 +550,7 @@ public class marketClientGUI implements Runnable {
                 }
 
                 for(int i = 0; i < productsList.size(); i++) {
+                    System.out.println(productsList.get(i).getName() + " is in dropdown");
                     productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
                 }
 
@@ -588,7 +599,9 @@ public class marketClientGUI implements Runnable {
 
         viewCart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO: Pull shopping cart information and display it in an option pane
+                //TODO Pull shopping cart information and display it in an option pane
+
+
                 writer.println("6");
                 writer.flush();
 
@@ -609,6 +622,60 @@ public class marketClientGUI implements Runnable {
                 //TODO: pull product list, show text input optionPane, then show info in different pane, loop this until they no longer want to search
             writer.println("2");
             writer.flush();
+            String keyword = JOptionPane.showInputDialog("What would you like to search for?");
+            writer.println(keyword);
+            writer.flush();
+
+            try {
+                ArrayList<String> searchResults = new ArrayList<>();
+                String firstMessage = reader.readLine();
+                System.out.println(firstMessage);
+                if (!firstMessage.equals("NO SEARCH RESULTS")) { //Results for this search exist
+                    searchResults.add(firstMessage);
+                    firstMessage = reader.readLine();
+                    while (!firstMessage.equals("END")) {
+                        searchResults.add(firstMessage);
+                        firstMessage = reader.readLine();
+                    }
+                    String[] productChoices = searchResults.toString().substring(1, searchResults.toString().length() - 1).split(", ");
+                    String searchIndex = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
+                            "Product List", JOptionPane.QUESTION_MESSAGE, null, productChoices, productChoices[0]);
+                    int searchIndexInt;
+                    if (searchIndex.equals("null")) { //user hit "cancel" button
+                        searchIndexInt = searchResults.size() + 1;
+                    } else {
+                        searchIndexInt = Integer.parseInt(searchIndex);
+                    }
+
+                    //What to do with product?
+                    do {
+                        if (searchIndexInt <= searchResults.size()) {
+                            Products product = (Products) ois.readObject();
+                            //GUI
+                            //  display the product and ask what to do about it
+                            String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
+                            int productAction = JOptionPane.showOptionDialog(null, product.getDescription(), "Product Description",
+                                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
+
+                            /**
+                             * 1. add to shopping cart
+                             * 2. buy now
+                             * 3. go back
+                             */
+
+
+                        }
+                    } while (true);
+
+
+                } else { //There are no results for this search
+                    JOptionPane.showMessageDialog(null, "Sorry, your search yielded no results.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+
 
             }
         });
