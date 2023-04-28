@@ -1,6 +1,3 @@
-
-package Proj4;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -63,6 +60,8 @@ public class marketClientGUI implements Runnable {
     JButton viewProduct;
     JButton backToMarketFromListings;
     private ArrayList<Products> productsList;
+    private ArrayList<Products> shoppingCart;
+    private ArrayList<Products> pastPurchases;
     private String[] productsArray = new String[0];
 
     //Client stuff
@@ -303,7 +302,6 @@ public class marketClientGUI implements Runnable {
         //WELCOME WINDOW
         login.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO implement logging in with JOptionPane
                 do {
                     String email = JOptionPane.showInputDialog("Enter your email: ");
                     String password = JOptionPane.showInputDialog("Enter your password: ");
@@ -567,7 +565,7 @@ public class marketClientGUI implements Runnable {
                 writer.println(selectedProductIndex);
                 writer.flush();
                 String [] productDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
-                int productAction = JOptionPane.showOptionDialog(null, productsList.get(selectedProductIndex).getDescription(), "Product Description",
+                int productAction = JOptionPane.showOptionDialog(null, productsList.get(selectedProductIndex).toString(), "Product Description",
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, productDialogButtons, productDialogButtons[0]);
                 writer.println(productAction);
                 writer.flush();
@@ -587,7 +585,11 @@ public class marketClientGUI implements Runnable {
                         ex.printStackTrace();
                     }
                 } else if (productAction == 1) {
-                    JOptionPane.showMessageDialog(null, "Product has been added to cart!", "Shopping Cart", JOptionPane.INFORMATION_MESSAGE);
+                    if (productsList.get(selectedProductIndex).getQuantity() >= 1) {
+                        JOptionPane.showMessageDialog(null, "Product has been added to cart!", "Shopping Cart", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Product is out of stock!", "Shopping Cart", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(null, "Come again!", "Order Cancel", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -600,19 +602,165 @@ public class marketClientGUI implements Runnable {
         viewCart.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO Pull shopping cart information and display it in an option pane
-
-
                 writer.println("6");
                 writer.flush();
+                String shoppingCartString = "";
+                ArrayList<Products> shoppingTemp = new ArrayList<>();
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        shoppingTemp.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+
+                if (!shoppingTemp.isEmpty()) {
+                    for (int i = 0; i < shoppingTemp.size(); i++) {
+                        int j = i + 1;
+                        shoppingCartString += j + ". " + shoppingTemp.get(i).getName() + " from " +
+                                shoppingTemp.get(i).getStoreName() + ". $" + shoppingTemp.get(i).getPrice() + "\n"
+                         + "Quantity available: " + shoppingTemp.get(i).getQuantity() + "\n";
+                    }
+                }
+                String[] cartDialogue = new String[3];
+                /**
+                 * 1. purchase cart
+                 * 2. remove an item
+                 * 3. return to market menu
+                 */
+                cartDialogue[0] = "Purchase entire cart";
+                cartDialogue[1] = "Remove an item";
+                cartDialogue[2] = "Return to market menu";
+                if (!shoppingTemp.isEmpty()) {
+                    int cartChoice = JOptionPane.showOptionDialog(null, shoppingCartString, "Error",
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                            cartDialogue, cartDialogue[0]);
+                    switch (cartChoice) {
+                        case 0:
+                            writer.println("1");
+                            writer.flush(); //sends purchase cart to server
+                            String success;
+                            ArrayList<String> failuresArr = new ArrayList<>();
+                            do {
+                                try {
+                                    success = reader.readLine();
+                                    if (success.equals("SUCCESS")) {
+                                        break;
+                                    } else {
+                                        failuresArr.add(success);
+                                    }
+                                } catch (IOException ex) {
+                                    break;
+                                }
+                            } while (true);
+                            if (failuresArr.isEmpty()) {
+                                JOptionPane.showMessageDialog(null, "Your cart has been successfully purchased!",
+                                        "Cart Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                String failuresString = "";
+                                for (int i = 0; i < failuresArr.size(); i++) {
+                                    int j = i + 1;
+                                    failuresString += j + ". " + failuresArr.get(i);
+                                }
+                                JOptionPane.showMessageDialog(null, "These items could not be purchased:" +
+                                        "\n" + failuresString, "Cart Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            break;
+
+                        case 1: // REMOVE AN ITEM
+                            writer.println("2"); //sends remove an item to server
+                            writer.flush();
+                            String[] removeItemArr = new String[shoppingTemp.size()];
+                            for (int i = 0; i < shoppingTemp.size(); i++) {
+                                int j = i + 1;
+                                removeItemArr[i] = j + ". " + shoppingTemp.get(i).getName() + " from " + shoppingTemp.get(i).getStoreName()
+                                        + "($" + shoppingTemp.get(i).getPrice() + ")";
+                            }
+                            String removeChoice = (String) JOptionPane.showInputDialog(null, "Which item would you like to remove?"
+                            , "Remove Item", JOptionPane.PLAIN_MESSAGE, null, removeItemArr, null);
+                            if (removeChoice != null) {
+                                try {
+                                    int indexNo = Integer.parseInt(removeChoice.substring(0, 1));
+                                    if (indexNo <= removeChoice.length() && indexNo > 0) {
+                                        writer.println(indexNo);
+                                        writer.flush();
+                                        System.out.println("printed index to server");
+                                        JOptionPane.showMessageDialog(null, "Your cart was updated!", "Cart Update",
+                                                JOptionPane.INFORMATION_MESSAGE);
+                                    } else {
+                                        writer.println("CANCEL REMOVE");
+                                        writer.flush();
+                                        System.out.println("printed cancel remove to server");
+                                        JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
+                                                JOptionPane.INFORMATION_MESSAGE);
+                                    }
+
+                                } catch (Exception e1) {
+                                    JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
+                                    writer.println("-1");
+                                    writer.flush();
+                                    System.out.println("printed -1 in exception catch to server");
+                                    e1.printStackTrace();
+                                    JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                                }
+                            } else {
+                                writer.println("-1");
+                                writer.flush();
+                                System.out.println("removeChoice was null");
+                                JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+
+                            break;
+                        case 2:
+                            writer.println("3");
+                            writer.flush();
+                            break;
+                        default:
+                            writer.println("3");
+                            writer.flush();
+                            break;
+
+
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "There is nothing in your cart!", "Cart Error", JOptionPane.ERROR_MESSAGE);
+                }
 
 
             }
         });
+
         viewHistory.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //TODO: Pull purchase history information and display it in an option pane
-            writer.println("5");
-            writer.flush();
+
+                writer.println("5");
+                writer.flush();
+                ArrayList<String> pastPurchases = new ArrayList<>();
+                do {
+                    try {
+                        String end = reader.readLine();
+                        if (!end.equals("END")) {
+                            pastPurchases.add(end);
+                        } else {
+                            break;
+                        }
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+
+                if (!pastPurchases.isEmpty()) {
+                    String pastPurchaseString = "";
+                    for (int i = 0; i < pastPurchases.size(); i++) {
+                        int j = i + 1;
+                        pastPurchaseString += j + ". " + pastPurchases.get(i) + "\n";
+                    }
+                    JOptionPane.showMessageDialog(null, pastPurchaseString, "Past Purchases", JOptionPane.INFORMATION_MESSAGE);
+                }
 
 
             }
@@ -620,60 +768,133 @@ public class marketClientGUI implements Runnable {
         productSearch.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO: pull product list, show text input optionPane, then show info in different pane, loop this until they no longer want to search
-            writer.println("2");
-            writer.flush();
-            String keyword = JOptionPane.showInputDialog("What would you like to search for?");
-            writer.println(keyword);
-            writer.flush();
+                writer.println("2");
+                writer.flush();
+                String keyword = JOptionPane.showInputDialog("What would you like to search for?");
+                writer.println(keyword);
+                writer.flush();
 
-            try {
-                ArrayList<String> searchResults = new ArrayList<>();
-                String firstMessage = reader.readLine();
-                System.out.println(firstMessage);
-                if (!firstMessage.equals("NO SEARCH RESULTS")) { //Results for this search exist
-                    searchResults.add(firstMessage);
-                    firstMessage = reader.readLine();
-                    while (!firstMessage.equals("END")) {
+                try {
+                    ArrayList<String> searchResults = new ArrayList<>();
+                    String firstMessage = reader.readLine();
+                    System.out.println(firstMessage);
+                    if (!firstMessage.equals("NO SEARCH RESULTS")) { //Results for this search exist
                         searchResults.add(firstMessage);
                         firstMessage = reader.readLine();
-                    }
-                    String[] productChoices = searchResults.toString().substring(1, searchResults.toString().length() - 1).split(", ");
-                    String searchIndex = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
-                            "Product List", JOptionPane.QUESTION_MESSAGE, null, productChoices, productChoices[0]);
-                    int searchIndexInt;
-                    if (searchIndex.equals("null")) { //user hit "cancel" button
-                        searchIndexInt = searchResults.size() + 1;
-                    } else {
-                        searchIndexInt = Integer.parseInt(searchIndex);
-                    }
-
-                    //What to do with product?
-                    do {
-                        if (searchIndexInt <= searchResults.size()) {
-                            Products product = (Products) ois.readObject();
-                            //GUI
-                            //  display the product and ask what to do about it
-                            String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
-                            int productAction = JOptionPane.showOptionDialog(null, product.getDescription(), "Product Description",
-                                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
-
-                            /**
-                             * 1. add to shopping cart
-                             * 2. buy now
-                             * 3. go back
-                             */
-
-
+                        while (!firstMessage.equals("END")) {
+                            searchResults.add(firstMessage);
+                            firstMessage = reader.readLine();
                         }
-                    } while (true);
+                        String[] productChoices = searchResults.toString().substring(1, searchResults.toString().length() - 1).split(", ");
+                        for (int i = 0; i < productChoices.length; i++) {
+                            int j = i + 1;
+                            String tempProduct = productChoices[i];
+                            productChoices[i] = j + ". " + tempProduct;
+                        }
+                        String searchIndex = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
+                                "Product List", JOptionPane.QUESTION_MESSAGE, null, productChoices, productChoices[0]);
+
+                        int searchIndexInt;
+                        if (searchIndex.equals("null")) { //user hit "cancel" button
+                            searchIndexInt = searchResults.size() + 1;
+                        } else {
+                            try {
+                                searchIndexInt = Integer.parseInt(searchIndex.substring(0, 1));
+                            } catch (Exception e1) {
+                                searchIndexInt = searchResults.size() + 1; //if there's a numberFormatException it just cancels
+                                System.out.println("Error with selection of search product");
+                            }
+                        }
+                        writer.println(searchIndexInt); //sends search index to server
+                        writer.flush();
+
+                        //What to do with product?
+                        //do {
+                            if (searchIndexInt <= searchResults.size()) {
+                                Products product = (Products) ois.readObject();
+                                //GUI
+                                //  display the product and ask what to do about it
+                                String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
+                                int productAction = JOptionPane.showOptionDialog(null, product.toString(), "Product Description",
+                                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
+                                System.out.println(productAction);
+                                /**
+                                 * 1. add to shopping cart
+                                 * 2. buy now
+                                 * 3. go back
+                                 */
+                                switch (productAction) {
+                                    case 0: //purchase now
+                                        System.out.println("case 0: purchase now");
+                                        writer.println("2"); //this is what the number is in the server
+                                        writer.flush();
+                                        System.out.println("sent 2 to the server");
+                                        int quantity = -1;
+                                        do {
+                                            try {
+                                                quantity = Integer.parseInt(JOptionPane.showInputDialog(null,
+                                                        "How many would you like to purchase?", "Order Form",
+                                                        JOptionPane.QUESTION_MESSAGE));
+                                                System.out.println(quantity);
+                                                if (quantity > 0) {
+                                                    System.out.println(quantity);
+                                                    break;
+                                                }
+                                            } catch (Exception e1) {
+                                                JOptionPane.showMessageDialog(null, "Please enter a valid number!",
+                                                        "Quantity Error", JOptionPane.ERROR_MESSAGE);
+
+                                            }
+                                        } while (true);
+                                        writer.println(quantity);
+                                        writer.flush();
+                                        String purchaseSuccess = reader.readLine();
+                                        if (purchaseSuccess.equals("SUCCESS")) {
+                                            JOptionPane.showMessageDialog(null, "Your product has been purchased!",
+                                                    "Product Purchase", JOptionPane.INFORMATION_MESSAGE);
+                                        } else {
+                                            JOptionPane.showMessageDialog(null, "Please try again with a new number!",
+                                                    "Out of Stock", JOptionPane.ERROR_MESSAGE);
+                                        }
+
+                                        break;
+                                    case 1: //add one to cart
+                                        writer.println("1"); //this is the number in the server for add to cart
+                                        writer.flush();
+                                        System.out.println("sent 1 to the server, adding one to the cart");
+                                        String success = reader.readLine();
+                                        if (success.equals("SUCCESS")) {
+                                            JOptionPane.showMessageDialog(null, "Added to cart!",
+                                                    "Search System", JOptionPane.INFORMATION_MESSAGE);
+                                        } else {
+                                            JOptionPane.showMessageDialog(null, "Could not add to cart," +
+                                                    " out of stock!", "Out of Stock Error", JOptionPane.ERROR_MESSAGE);
+                                        }
+
+                                    default: //cancel
+                                        writer.write("3");
+                                        writer.flush();
+                                        break;
+
+                                }
 
 
-                } else { //There are no results for this search
-                    JOptionPane.showMessageDialog(null, "Sorry, your search yielded no results.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            writer.println("DO NOT SEARCH AGAIN"); //I'm trying not to edit the server too much
+                            writer.flush(); //if we wanted them to be able to search again, we would print "YES" to the server and add a loop
+                                            //but I didn't want to mess with that right now
+
+                        //} while (true); this loop seemed unnecessary
+
+
+                    } else { //There are no results for this search
+                        JOptionPane.showMessageDialog(null, "Sorry, your search yielded no results.", "Error", JOptionPane.ERROR_MESSAGE);
+                        writer.println("DO NOT SEARCH AGAIN");
+                        writer.flush();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
 
 
 
@@ -682,16 +903,16 @@ public class marketClientGUI implements Runnable {
         priceSort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO: pull product list, sort it, return product list OR call pre-defined sort method
-            writer.println("3");
-            writer.flush();
+                writer.println("3");
+                writer.flush();
 
             }
         });
         quantitySort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO: pull product list, sort it, return product list OR call pre-defined sort method
-            writer.println("4");
-            writer.flush();
+                writer.println("4");
+                writer.flush();
 
             }
         });
@@ -780,4 +1001,3 @@ public class marketClientGUI implements Runnable {
 
     }
 }
-
