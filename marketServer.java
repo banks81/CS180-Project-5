@@ -495,7 +495,7 @@ public class marketServer implements Runnable {
                                 int menuChoice = Integer.parseInt(reader.readLine());
                                 System.out.println("Option chosen: " + menuChoice);
                                 switch (menuChoice) {
-                                    case 1:
+                                    case 1: // VIEW PRODUCTS
                                         readFile();
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
@@ -664,7 +664,7 @@ public class marketServer implements Runnable {
                                      * 1-2 :: search result == null:
                                      *  - NO SEARCH RESULTS passed
                                      * **/
-                                    case 3:
+                                    case 3: // SORT BY PRICE
                                         ArrayList<Products> tempArr = new ArrayList<>();
                                         double min;
                                         int minInd;
@@ -676,7 +676,7 @@ public class marketServer implements Runnable {
 
                                             //For loop through all products - find minimum price, then add that to the sorted
                                             //array and remove it from the original array
-                                            readFile();
+                                            //readFile();
                                             for (int i = 0; i < productsList.size(); i++) {
                                                 if (productsList.get(i).getPrice() < min) {
                                                     min = productsList.get(i).getPrice();
@@ -687,8 +687,68 @@ public class marketServer implements Runnable {
                                             productsList.remove(minInd);
                                         }
                                         productsList = new ArrayList<>(tempArr); //Set the original array equal to the sorted temp array
+                                        for (Products product : productsList) {
+                                            oos.writeObject(product);
+                                            oos.flush();
+                                            System.out.println(product.getName());
+                                        }
+                                        oos.writeObject("END");
+                                        oos.flush();
+
+                                        listingAction = reader.readLine();
+                                        if (listingAction.equals("BACK")) {
+                                            continue;
+                                        }
+                                        marketChoice = Integer.parseInt(listingAction);
+                                        readFile();
+                                        if (marketChoice <= productsList.size()) {
+                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
+                                            Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
+                                            /**
+                                             * 1. add one to cart
+                                             * 2. purchase now
+                                             * 3. go back to products lists
+                                             * **/
+                                            marketChoice = Integer.parseInt(reader.readLine());
+                                            System.out.println("Option chosen: " + marketChoice);
+                                            switch (marketChoice) {
+                                                case 1:
+                                                    System.out.println("add one to cart");
+                                                    if (productOfChoice.getQuantity() >= 1) {
+                                                        current.addToShoppingCart(productOfChoice, 1);
+                                                        productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
+                                                        System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    } else {
+                                                        System.out.println("quantity was less than 1, could not add to cart");
+
+                                                    }
+                                                    break;
+                                                case 0:
+                                                    System.out.println("purchase now");
+                                                    int quantity = Integer.parseInt(reader.readLine());
+                                                    if (productOfChoice.getQuantity() > quantity) {
+                                                        productOfChoice.setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productOfChoice.setSales(productOfChoice.getSales() + quantity);
+                                                        current.addProducts(productOfChoice.getName(), quantity);
+                                                        writer.println("SUCCESS");
+                                                        writer.flush();
+                                                    } else {
+                                                        writer.println("ERROR");
+                                                        writer.flush();
+                                                    }
+                                                    System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    break;
+                                                default:
+                                                    System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    break;
+                                            }
+                                        } else if (marketChoice == productsList.size() + 2) {
+                                            //serverSocket.close();
+                                            writeFile();
+                                            return;
+                                        }
                                         break;
-                                    case 4:
+                                    case 4: // SORT BY QUANTITY
                                         tempArr = new ArrayList<>();
                                         readFile();
                                         while (!productsList.isEmpty()) { //Empties out the entire list, sorting each removed element into the temp array
@@ -707,6 +767,66 @@ public class marketServer implements Runnable {
                                             productsList.remove(minInd);
                                         }
                                         productsList = new ArrayList<>(tempArr); //Set the original array equal to the sorted temp array
+                                        for (Products product : productsList) {
+                                            oos.writeObject(product);
+                                            oos.flush();
+                                            System.out.println(product.getName());
+                                        }
+                                        oos.writeObject("END");
+                                        oos.flush();
+
+                                        listingAction = reader.readLine();
+                                        if (listingAction.equals("BACK")) {
+                                            continue;
+                                        }
+                                        marketChoice = Integer.parseInt(listingAction);
+                                        readFile();
+                                        if (marketChoice <= productsList.size()) {
+                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
+                                            Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
+                                            /**
+                                             * 1. add one to cart
+                                             * 2. purchase now
+                                             * 3. go back to products lists
+                                             * **/
+                                            marketChoice = Integer.parseInt(reader.readLine());
+                                            System.out.println("Option chosen: " + marketChoice);
+                                            switch (marketChoice) {
+                                                case 1:
+                                                    System.out.println("add one to cart");
+                                                    if (productOfChoice.getQuantity() >= 1) {
+                                                        current.addToShoppingCart(productOfChoice, 1);
+                                                        productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
+                                                        System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    } else {
+                                                        System.out.println("quantity was less than 1, could not add to cart");
+
+                                                    }
+                                                    break;
+                                                case 0:
+                                                    System.out.println("purchase now");
+                                                    int quantity = Integer.parseInt(reader.readLine());
+                                                    if (productOfChoice.getQuantity() > quantity) {
+                                                        productOfChoice.setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productOfChoice.setSales(productOfChoice.getSales() + quantity);
+                                                        current.addProducts(productOfChoice.getName(), quantity);
+                                                        writer.println("SUCCESS");
+                                                        writer.flush();
+                                                    } else {
+                                                        writer.println("ERROR");
+                                                        writer.flush();
+                                                    }
+                                                    System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    break;
+                                                default:
+                                                    System.out.println(productOfChoice.getName() + " transaction finished");
+                                                    break;
+                                            }
+                                        } else if (marketChoice == productsList.size() + 2) {
+                                            //serverSocket.close();
+                                            writeFile();
+                                            return;
+                                        }
                                         break;
                                     case 5:
                                         for (String pastPurchases : current.getPastPurchase()) {
