@@ -621,7 +621,7 @@ public class marketClientGUI implements Runnable {
                         int j = i + 1;
                         shoppingCartString += j + ". " + shoppingTemp.get(i).getName() + " from " +
                                 shoppingTemp.get(i).getStoreName() + ". $" + shoppingTemp.get(i).getPrice() + "\n"
-                         + "Quantity available: " + shoppingTemp.get(i).getQuantity() + "\n";
+                                + "Quantity available: " + shoppingTemp.get(i).getQuantity() + "\n";
                     }
                 }
                 String[] cartDialogue = new String[3];
@@ -679,7 +679,7 @@ public class marketClientGUI implements Runnable {
                                         + "($" + shoppingTemp.get(i).getPrice() + ")";
                             }
                             String removeChoice = (String) JOptionPane.showInputDialog(null, "Which item would you like to remove?"
-                            , "Remove Item", JOptionPane.PLAIN_MESSAGE, null, removeItemArr, null);
+                                    , "Remove Item", JOptionPane.PLAIN_MESSAGE, null, removeItemArr, null);
                             if (removeChoice != null) {
                                 try {
                                     int indexNo = Integer.parseInt(removeChoice.substring(0, 1));
@@ -810,79 +810,79 @@ public class marketClientGUI implements Runnable {
 
                         //What to do with product?
                         //do {
-                            if (searchIndexInt <= searchResults.size()) {
-                                Products product = (Products) ois.readObject();
-                                //GUI
-                                //  display the product and ask what to do about it
-                                String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
-                                int productAction = JOptionPane.showOptionDialog(null, product.toString(), "Product Description",
-                                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
-                                System.out.println(productAction);
-                                /**
-                                 * 1. add to shopping cart
-                                 * 2. buy now
-                                 * 3. go back
-                                 */
-                                switch (productAction) {
-                                    case 0: //purchase now
-                                        System.out.println("case 0: purchase now");
-                                        writer.println("2"); //this is what the number is in the server
-                                        writer.flush();
-                                        System.out.println("sent 2 to the server");
-                                        int quantity = -1;
-                                        do {
-                                            try {
-                                                quantity = Integer.parseInt(JOptionPane.showInputDialog(null,
-                                                        "How many would you like to purchase?", "Order Form",
-                                                        JOptionPane.QUESTION_MESSAGE));
+                        if (searchIndexInt <= searchResults.size()) {
+                            Products product = (Products) ois.readObject();
+                            //GUI
+                            //  display the product and ask what to do about it
+                            String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
+                            int productAction = JOptionPane.showOptionDialog(null, product.toString(), "Product Description",
+                                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
+                            System.out.println(productAction);
+                            /**
+                             * 1. add to shopping cart
+                             * 2. buy now
+                             * 3. go back
+                             */
+                            switch (productAction) {
+                                case 0: //purchase now
+                                    System.out.println("case 0: purchase now");
+                                    writer.println("2"); //this is what the number is in the server
+                                    writer.flush();
+                                    System.out.println("sent 2 to the server");
+                                    int quantity = -1;
+                                    do {
+                                        try {
+                                            quantity = Integer.parseInt(JOptionPane.showInputDialog(null,
+                                                    "How many would you like to purchase?", "Order Form",
+                                                    JOptionPane.QUESTION_MESSAGE));
+                                            System.out.println(quantity);
+                                            if (quantity > 0) {
                                                 System.out.println(quantity);
-                                                if (quantity > 0) {
-                                                    System.out.println(quantity);
-                                                    break;
-                                                }
-                                            } catch (Exception e1) {
-                                                JOptionPane.showMessageDialog(null, "Please enter a valid number!",
-                                                        "Quantity Error", JOptionPane.ERROR_MESSAGE);
-
+                                                break;
                                             }
-                                        } while (true);
-                                        writer.println(quantity);
-                                        writer.flush();
-                                        String purchaseSuccess = reader.readLine();
-                                        if (purchaseSuccess.equals("SUCCESS")) {
-                                            JOptionPane.showMessageDialog(null, "Your product has been purchased!",
-                                                    "Product Purchase", JOptionPane.INFORMATION_MESSAGE);
-                                        } else {
-                                            JOptionPane.showMessageDialog(null, "Please try again with a new number!",
-                                                    "Out of Stock", JOptionPane.ERROR_MESSAGE);
+                                        } catch (Exception e1) {
+                                            JOptionPane.showMessageDialog(null, "Please enter a valid number!",
+                                                    "Quantity Error", JOptionPane.ERROR_MESSAGE);
+
                                         }
+                                    } while (true);
+                                    writer.println(quantity);
+                                    writer.flush();
+                                    String purchaseSuccess = reader.readLine();
+                                    if (purchaseSuccess.equals("SUCCESS")) {
+                                        JOptionPane.showMessageDialog(null, "Your product has been purchased!",
+                                                "Product Purchase", JOptionPane.INFORMATION_MESSAGE);
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Please try again with a new number!",
+                                                "Out of Stock", JOptionPane.ERROR_MESSAGE);
+                                    }
 
-                                        break;
-                                    case 1: //add one to cart
-                                        writer.println("1"); //this is the number in the server for add to cart
-                                        writer.flush();
-                                        System.out.println("sent 1 to the server, adding one to the cart");
-                                        String success = reader.readLine();
-                                        if (success.equals("SUCCESS")) {
-                                            JOptionPane.showMessageDialog(null, "Added to cart!",
-                                                    "Search System", JOptionPane.INFORMATION_MESSAGE);
-                                        } else {
-                                            JOptionPane.showMessageDialog(null, "Could not add to cart," +
-                                                    " out of stock!", "Out of Stock Error", JOptionPane.ERROR_MESSAGE);
-                                        }
+                                    break;
+                                case 1: //add one to cart
+                                    writer.println("1"); //this is the number in the server for add to cart
+                                    writer.flush();
+                                    System.out.println("sent 1 to the server, adding one to the cart");
+                                    String success = reader.readLine();
+                                    if (success.equals("SUCCESS")) {
+                                        JOptionPane.showMessageDialog(null, "Added to cart!",
+                                                "Search System", JOptionPane.INFORMATION_MESSAGE);
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "Could not add to cart," +
+                                                " out of stock!", "Out of Stock Error", JOptionPane.ERROR_MESSAGE);
+                                    }
 
-                                    default: //cancel
-                                        writer.write("3");
-                                        writer.flush();
-                                        break;
-
-                                }
-
+                                default: //cancel
+                                    writer.write("3");
+                                    writer.flush();
+                                    break;
 
                             }
-                            writer.println("DO NOT SEARCH AGAIN"); //I'm trying not to edit the server too much
-                            writer.flush(); //if we wanted them to be able to search again, we would print "YES" to the server and add a loop
-                                            //but I didn't want to mess with that right now
+
+
+                        }
+                        writer.println("DO NOT SEARCH AGAIN"); //I'm trying not to edit the server too much
+                        writer.flush(); //if we wanted them to be able to search again, we would print "YES" to the server and add a loop
+                        //but I didn't want to mess with that right now
 
                         //} while (true); this loop seemed unnecessary
 
@@ -905,17 +905,78 @@ public class marketClientGUI implements Runnable {
                 //TODO: pull product list, sort it, return product list OR call pre-defined sort method
                 writer.println("3");
                 writer.flush();
+                productsList = new ArrayList<>();
+                productsList.clear();
+                listingsPnl.remove(productsDropdown);
+                listingsPnl.remove(viewProduct);
+                productsDropdown = new JComboBox();
+                listingsPnl.add(productsDropdown);
+                listingsPnl.add(viewProduct);
+
+                //View the listings
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        productsList.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+
+                for (int i = 0; i < productsList.size(); i++) {
+                    System.out.println(productsList.get(i));
+                }
+
+                for (int i = 0; i < productsList.size(); i++) {
+                    System.out.println(productsList.get(i).getName() + " is in dropdown");
+                    productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
+                }
+
+                listingsWindow.setVisible(true);
+                productsWindow.setVisible(false);
 
                 JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest price!\n" +
                         "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
-
             }
+
         });
         quantitySort.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //TODO: pull product list, sort it, return product list OR call pre-defined sort method
                 writer.println("4");
                 writer.flush();
+                productsList = new ArrayList<>();
+                productsList.clear();
+                listingsPnl.remove(productsDropdown);
+                listingsPnl.remove(viewProduct);
+                productsDropdown = new JComboBox();
+                listingsPnl.add(productsDropdown);
+                listingsPnl.add(viewProduct);
+
+                //View the listings
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        productsList.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+
+                for (int i = 0; i < productsList.size(); i++) {
+                    System.out.println(productsList.get(i));
+                }
+
+                for (int i = 0; i < productsList.size(); i++) {
+                    System.out.println(productsList.get(i).getName() + " is in dropdown");
+                    productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
+                }
+
+                listingsWindow.setVisible(true);
+                productsWindow.setVisible(false);
+
                 JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest availability!\n" +
                         "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
 
