@@ -1,3 +1,4 @@
+package Proj4;
 
 import javax.swing.*;
 import java.io.*;
@@ -29,6 +30,11 @@ public class marketServer implements Runnable {
             boolean customerOverFlowed = true;
             String infoType = null;
             String lineNext = "";
+            customersList.clear();
+            sellersList.clear();
+            storesList.clear();
+            productsList.clear();
+            System.out.println(productsList.toString());
             while (true) {
                 if (customerOverFlowed) {   //if true; current cursor at --------
                     lineNext = bufferedReader.readLine();
@@ -279,6 +285,7 @@ public class marketServer implements Runnable {
         } catch (Exception e) {
             System.out.println("Program terminated.");
         }
+        productsList.clear();
     }
     public static void main(String[] args) throws IOException{
         ServerSocket serverSocket = new ServerSocket(4242);
@@ -491,6 +498,7 @@ public class marketServer implements Runnable {
                                 System.out.println("Option chosen: " + menuChoice);
                                 switch (menuChoice) {
                                     case 1:
+                                        readFile();
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
                                             oos.flush();
@@ -505,6 +513,7 @@ public class marketServer implements Runnable {
                                             continue;
                                         }
                                         marketChoice = Integer.parseInt(listingAction);
+                                        readFile();
                                         if (marketChoice <= productsList.size()) {
                                             System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
@@ -545,7 +554,6 @@ public class marketServer implements Runnable {
                                             writeFile();
                                             return;
                                         }
-                                        System.out.println("Alex -- broke");
                                         break;
                                     //expects:
                                     /**
@@ -565,6 +573,7 @@ public class marketServer implements Runnable {
                                         do {
                                             String keyword = reader.readLine();
                                             ArrayList<Products> searchResults = new ArrayList<>();
+                                            readFile();
                                             for (Products product : productsList) {
                                                 if (product.getName().contains(keyword) ||
                                                         product.getDescription().contains(keyword) ||
@@ -649,12 +658,14 @@ public class marketServer implements Runnable {
                                         double min;
                                         int minInd;
 
+                                        readFile();
                                         while (!productsList.isEmpty()) { //Empties out the entire list, sorting each removed element into the temp array
                                             min = productsList.get(0).getPrice();
                                             minInd = 0;
 
                                             //For loop through all products - find minimum price, then add that to the sorted
                                             //array and remove it from the original array
+                                            readFile();
                                             for (int i = 0; i < productsList.size(); i++) {
                                                 if (productsList.get(i).getPrice() < min) {
                                                     min = productsList.get(i).getPrice();
@@ -668,6 +679,7 @@ public class marketServer implements Runnable {
                                         break;
                                     case 4:
                                         tempArr = new ArrayList<>();
+                                        readFile();
                                         while (!productsList.isEmpty()) { //Empties out the entire list, sorting each removed element into the temp array
                                             min = productsList.get(0).getQuantity();
                                             minInd = 0;
