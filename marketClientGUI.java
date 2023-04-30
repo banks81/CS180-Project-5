@@ -1532,6 +1532,7 @@ public class marketClientGUI implements Runnable {
         backToMainFromMarket.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("7");
+                writer.flush();
                 productsWindow.setVisible(false);
                 mainWindow.setVisible(true);
             }
@@ -1539,6 +1540,7 @@ public class marketClientGUI implements Runnable {
         backToMainFromSeller.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("5");
+                writer.flush();
                 sellerWindow.setVisible(false);
                 mainWindow.setVisible(true);
             }
@@ -1546,6 +1548,7 @@ public class marketClientGUI implements Runnable {
         backToSellerFromBooth.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("8");
+                writer.flush();
                 boothWindow.setVisible(false);
                 sellerWindow.setVisible(true);
             }
