@@ -1225,17 +1225,18 @@ public class marketClientGUI implements Runnable {
                 }
                 String productToView = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
                         "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
+                System.out.println(productToView);
                 int productToViewInt;
-                if (productToView != null) {
-                    try {
-                        productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
-                    } catch (NumberFormatException e1) {
-                        productToViewInt = -1;
-                    }
-                    if (productToViewInt != -1) {
-                        JOptionPane.showMessageDialog(null, sellerProductList.get(productToViewInt).toString(),
-                                "Product Info", JOptionPane.INFORMATION_MESSAGE);
-                    }
+                try {
+                    productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
+                } catch (Exception e1) {
+                    productToViewInt = -1;
+                }
+                if (productToView == null) {
+                    return;
+                } else if (productToViewInt != -1) {
+                    JOptionPane.showMessageDialog(null, sellerProductList.get(productToViewInt).toString(),
+                            "Product Info", JOptionPane.INFORMATION_MESSAGE);
                 }
 
             }
