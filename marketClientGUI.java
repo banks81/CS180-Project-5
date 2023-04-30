@@ -113,6 +113,7 @@ public class marketClientGUI implements Runnable {
         productsWindow.dispose();
         sellerWindow.dispose();
         listingsWindow.dispose();
+        boothWindow.dispose();
 
         try {
             oos.close();
@@ -1170,6 +1171,27 @@ public class marketClientGUI implements Runnable {
             }
         });
         
+        addProduct.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("3");
+                writer.flush();
+
+                do {
+                    String prodName = JOptionPane.showInputDialog("What is the name of your product? \n(Cancel to stop entering more products)");
+                    if (prodName == null) {
+                        writer.println("0");
+                        break;
+                    }
+                    writer.println(prodName);
+                    writer.flush();
+
+                } while (true);
+
+
+            }
+        });
+
+        
         viewProducts.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("1"); //view products
@@ -1246,14 +1268,14 @@ public class marketClientGUI implements Runnable {
         });
         backToMainFromSeller.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //writer.println("7");
+                writer.println("5");
                 sellerWindow.setVisible(false);
                 mainWindow.setVisible(true);
             }
         });
         backToSellerFromBooth.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //writer.println("7");
+                writer.println("8");
                 boothWindow.setVisible(false);
                 sellerWindow.setVisible(true);
             }
