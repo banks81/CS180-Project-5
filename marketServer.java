@@ -1207,16 +1207,19 @@ public class marketServer implements Runnable {
                                                  * 2. END
                                                  * **/
                                                 case 6 :    //6. Import product csv file
-                                                    //boolean success = true;
-                                                    oos.writeObject(current);
-                                                    oos.flush();
-                                                    oos.writeObject(currentStore);
-                                                    oos.flush();
                                                     try {
-                                                        current = (Seller) ois.readObject();
-                                                        currentStore = (Store) ois.readObject();
-                                                    } catch (Exception e) {}    //??
-                                                    sellersList.set(indexUser,current);
+                                                        File file = (File) ois.readObject();
+                                                        currentStore.importProducts(file);
+                                                        writer.println("YUP");
+                                                        writer.flush();
+                                                    } catch (Exception exc)  {
+                                                        exc.printStackTrace();
+                                                        writer.println("NO");
+                                                        writer.flush();
+                                                    }
+                                                    for (Products product : currentStore.goods){
+                                                        System.out.println(product.toString());
+                                                    }
                                                     writeFile();
                                                     break;
                                                 //expects:
