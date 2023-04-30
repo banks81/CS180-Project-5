@@ -1131,15 +1131,17 @@ public class marketServer implements Runnable {
                                                 case 3 :    //3. Add product
                                                     boolean productImport = true;
                                                     while (productImport) {
-                                                        if (reader.readLine().equals("END OF PRODUCT")) {
+                                                        String newProduct = reader.readLine();
+                                                        if (newProduct.equals("END OF PRODUCT")) {
                                                             productImport = false;
                                                         } else {    //product in %s;;%s;;%s;;%d;;%.2f format
-                                                            String newProduct = reader.readLine();
+                                                            System.out.println(newProduct);
                                                             currentStore.addGoods(new Products(newProduct, 0,
                                                                     0, "Description", 0,
                                                                     currentStore.getName(), 0));
                                                         }
                                                     }
+                                                    current.getStore().set(storeInt,currentStore);
                                                     sellersList.set(indexUser,current);
                                                     writeFile();
                                                     break;
