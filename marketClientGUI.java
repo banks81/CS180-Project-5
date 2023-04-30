@@ -1107,6 +1107,69 @@ public class marketClientGUI implements Runnable {
             }
         });
         
+        viewSales.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("2");
+                writer.flush();
+                try {
+                    JOptionPane.showMessageDialog(null, String.format("The sale is %s.", reader.readLine()), "View Sales", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception exception) {}
+            }
+        });
+
+        addBooth.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("2");
+                writer.flush();
+
+                String newStoreName = (String) JOptionPane.showInputDialog(null, "Enter new Store name", "Add booth", JOptionPane.QUESTION_MESSAGE);
+                writer.println(newStoreName);
+                writer.flush();
+                System.out.println(newStoreName + " sent to server");
+                JOptionPane.showMessageDialog(null, "New store " + newStoreName + " made!", "Add booth", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        editBooth.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("3");
+                writer.flush();
+                boolean hasBooth = true;
+                ArrayList<String> storeNames = new ArrayList<>();
+                try {
+                    if (!reader.readLine().equals("EMPTY")) {
+                        do {
+                            String storeName = reader.readLine();
+                            if (storeName.equals("END")) {
+                                break;
+                            } else {
+                                storeNames.add(storeName);
+                            }
+                        } while (true);
+                        String[] nameList = new String[storeNames.size()];
+                        int i;
+                        for (i = 0; i < storeNames.size(); i++) {
+                            nameList[i] = String.format("%d. %s", i + 1, storeNames.get(i));
+                        }
+                        String searchIndex = (String) JOptionPane.showInputDialog(null,
+                                "Which booth would you like to view?", "Edit booth",
+                                JOptionPane.QUESTION_MESSAGE, null, nameList, nameList[0]);
+                        writer.println(searchIndex.substring(0, 1));
+                        writer.flush();
+                        i = Integer.parseInt(searchIndex.substring(0, 1)) - 1;
+                        String newName = JOptionPane.showInputDialog(null, "Enter new name for your booth:", "Edit booth", JOptionPane.QUESTION_MESSAGE);
+                        if (newName == null) {
+                            writer.println(storeNames.get(i));
+                        } else {
+                            writer.println(newName);
+                        }
+                        writer.flush();
+                        JOptionPane.showMessageDialog(null, "Booth name successfully changed!", "Edit booth", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } catch (Exception exception) {}
+            }
+        });
+        
         viewProducts.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("1"); //view products
