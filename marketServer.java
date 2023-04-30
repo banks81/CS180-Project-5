@@ -1191,8 +1191,14 @@ public class marketServer implements Runnable {
                                                     oos.writeObject("END");
                                                     oos.flush();
                                                     if (!currentStore.getGoods().isEmpty()) {
-                                                        Integer index = Integer.parseInt(reader.readLine()) - 1;
-                                                        currentStore.getGoods().remove(index);
+                                                        int index = Integer.parseInt(reader.readLine());
+                                                        if (index == -1) {
+                                                            break;
+                                                        }
+                                                        int sureDelete = Integer.parseInt(reader.readLine());
+                                                        if (sureDelete == 0) {
+                                                            currentStore.getGoods().remove(index);
+                                                        }
                                                     }
                                                     sellersList.set(indexUser,current);
                                                     writeFile();
