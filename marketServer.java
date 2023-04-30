@@ -35,7 +35,6 @@ public class marketServer implements Runnable {
             sellersList.clear();
             storesList.clear();
             productsList.clear();
-            System.out.println(productsList.toString());
             while (true) {
                 if (customerOverFlowed) {   //if true; current cursor at --------
                     lineNext = bufferedReader.readLine();
