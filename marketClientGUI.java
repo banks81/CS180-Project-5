@@ -1472,6 +1472,40 @@ public class marketClientGUI implements Runnable {
 
             }
         });
+        importProduct.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e){
+                writer.println("6"); //view booths
+                writer.flush();
+                System.out.println("import csv test");
+                String csvFileName = JOptionPane.showInputDialog(null, "Enter the csv file name: ", "Import Product CSV"
+                        , JOptionPane.INFORMATION_MESSAGE);
+                File file = new File(csvFileName);
+                if (!file.exists()) {
+                    JOptionPane.showMessageDialog(null, "Error! File does not exist", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } else {
+                    try {
+                        oos.writeObject(file);
+                        oos.flush();
+                    } catch (Exception exc){
+                        exc.printStackTrace();
+                    }
+                }
+                try {
+                    String passFail = reader.readLine();
+                    if (passFail.equals("YUP")){
+                        JOptionPane.showMessageDialog(null, "Products successfully imported!", "Import Success"
+                                , JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error! Failed to import products", "Import Fail",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception w){
+                    w.printStackTrace();
+                }
+
+            }
+        });
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
