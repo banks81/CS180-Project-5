@@ -1237,6 +1237,217 @@ public class marketClientGUI implements Runnable {
 
             }
         });
+        
+        editProduct.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("4");
+                writer.flush();
+                System.out.println("viewing products to edit");
+                ArrayList<Products> sellerProductList = new ArrayList<>();
+                String[] sellerProducts;
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        sellerProductList.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+                if (sellerProductList == null || sellerProductList.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "You do not have any products to edit!",
+                            "View Products", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                for(int i = 0; i < sellerProductList.size(); i++) {
+                    System.out.println(sellerProductList.get(i));
+                }
+                sellerProducts = new String[sellerProductList.size()];
+                for (int i = 0; i < sellerProductList.size(); i++   ) {
+                    int j = i + 1;
+                    sellerProducts[i] = j + ". " + sellerProductList.get(i).getName();
+                }
+                String productToView = (String) JOptionPane.showInputDialog(null,
+                        "Which product would you like to edit?",
+                        "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
+                int productToViewInt;
+                try {
+                    productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
+                } catch (NumberFormatException e1) {
+                    productToViewInt = -1;
+                }
+                if (productToViewInt == -1) {
+                    return;
+                }
+                JOptionPane.showMessageDialog(null, sellerProductList.get(productToViewInt).toString(),
+                        "Selected Product Info", JOptionPane.INFORMATION_MESSAGE);
+                productToViewInt++;
+                writer.println(productToViewInt);
+                writer.flush();
+                productToViewInt = productToViewInt -1;
+                Products editingProduct = sellerProductList.get(productToViewInt);
+                int decisionThing = JOptionPane.showConfirmDialog(null,
+                        "Current Product Name: " + editingProduct.getName() + "\n" +
+                                "Would you like to edit this?",
+                        "Edit Name", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
+                System.out.println(decisionThing);
+                if (decisionThing == 0) { //yes
+                    try {
+                        oos.writeBoolean(true);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    String name = JOptionPane.showInputDialog("Current Name: " + editingProduct.getName() +
+                            "\nEnter a new name:");
+                    if (name == null) {
+                        writer.println(editingProduct.getName());
+                        writer.flush();
+                        JOptionPane.showMessageDialog(null, "Name was not changed!", "Name Change Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        writer.println(name);
+                        writer.flush();
+                        editingProduct.setName(name);
+                        JOptionPane.showMessageDialog(null, "Name has been set to " + name,
+                                "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else { //do not change name
+                    try {
+                        oos.writeBoolean(false);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                decisionThing = JOptionPane.showConfirmDialog(null,
+                        "Current Product Description: " + editingProduct.getDescription() + "\n" +
+                                "Would you like to edit this?",
+                        "Edit Description", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
+                System.out.println(decisionThing);
+                if (decisionThing == 0) { //yes
+                    try {
+                        oos.writeBoolean(true);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    String description = JOptionPane.showInputDialog("Current Description:\n" + editingProduct.getDescription()
+                            + "\nEnter a new description:");
+                    if (description == null) {
+                        writer.println(editingProduct.getDescription());
+                        writer.flush();
+                        JOptionPane.showMessageDialog(null, "Description was not changed!", "Name Change Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        writer.println(description);
+                        writer.flush();
+                        editingProduct.setDescription(description);
+                        JOptionPane.showMessageDialog(null, "Description has been set to " + description,
+                                "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else { //do not change name
+                    try {
+                        oos.writeBoolean(false);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                decisionThing = JOptionPane.showConfirmDialog(null,
+                        "Current Product Price: " + editingProduct.getPrice() + "\n" +
+                                "Would you like to edit this?",
+                        "Edit Price", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
+                System.out.println(decisionThing);
+                double price;
+                if (decisionThing == 0) { //yes
+                    try {
+                        oos.writeBoolean(true);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    do {
+                        try {
+                            price = Double.parseDouble(JOptionPane.showInputDialog("Current Price: " + editingProduct.getPrice() +
+                                    "\nEnter a new price:"));
+                            if (price <= 0) {
+                                JOptionPane.showMessageDialog(null, "Please enter a valid price!",
+                                        "Edit Price", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                break;
+                            }
+                        } catch (Exception e1) {
+                            JOptionPane.showMessageDialog(null, "Please enter a valid price!",
+                                    "Edit Price", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } while (true);
+                    writer.println(price);
+                    writer.flush();
+                    editingProduct.setPrice(price);
+                    JOptionPane.showMessageDialog(null, "Price has been set to " + price,
+                            "Success!", JOptionPane.INFORMATION_MESSAGE);
+
+                } else { //do not change price
+                    try {
+                        oos.writeBoolean(false);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                decisionThing = JOptionPane.showConfirmDialog(null,
+                        "Current Product Quantity Available: " + editingProduct.getQuantity() + "\n" +
+                                "Would you like to edit this?",
+                        "Edit Quantity", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
+                System.out.println(decisionThing);
+                int quantity;
+                if (decisionThing == 0) { //yes
+                    try {
+                        oos.writeBoolean(true);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    do {
+                        try {
+                            quantity = Integer.parseInt(JOptionPane.showInputDialog("Current Quantity: " + editingProduct.getQuantity() +
+                                    "\nEnter a new quantity:"));
+                            if (quantity <= 0) {
+                                JOptionPane.showMessageDialog(null, "Please enter a valid quantity!",
+                                        "Edit Price", JOptionPane.ERROR_MESSAGE);
+                            } else {
+                                break;
+                            }
+                        } catch (NumberFormatException e1) {
+                            JOptionPane.showMessageDialog(null, "Please enter a valid quantity!",
+                                    "Edit Quantity", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } while (true);
+                    writer.println(quantity);
+                    writer.flush();
+                    editingProduct.setQuantity(quantity);
+                    JOptionPane.showMessageDialog(null, "Quantity has been set to " + quantity,
+                            "Success!", JOptionPane.INFORMATION_MESSAGE);
+
+                } else { //do not change price
+                    try {
+                        oos.writeBoolean(false);
+                        oos.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                System.out.println("done editing product");
+                JOptionPane.showMessageDialog(null, "Product was successfully edited!" +
+                                "\nNew Product Information:\n" +
+                        editingProduct.toString(),
+                        "Success!", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        });
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
