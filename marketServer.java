@@ -1,4 +1,5 @@
 
+
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -1095,7 +1096,13 @@ public class marketServer implements Runnable {
                                         }
                                         writer.println("END");
                                         writer.flush();
-                                        Store currentStore = current.getStore().get(Integer.parseInt(reader.readLine()) - 1);
+
+                                        if (current.getStore().isEmpty() || current.getStore() == null) {
+                                            break;
+                                        }
+                                        int storeInt = Integer.parseInt(reader.readLine());
+                                        Store currentStore = current.getStore().get(storeInt);
+
                                         /**
                                          * 1. View products
                                          * 2. View sales
