@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -1026,8 +1027,7 @@ public class marketServer implements Runnable {
                      * 3. Quit
                      * **/
                     switch (Integer.parseInt(reader.readLine())) {
-                        case 1 : //1. View/edit your account
-                            System.out.println("Option 1: View/edit your account");
+                        case 1:
                             boolean editAcc = true;
                             do {
                                 writer.println(current.getName());
@@ -1036,53 +1036,46 @@ public class marketServer implements Runnable {
                                 writer.flush();
                                 writer.println(current.getPassword());
                                 writer.flush();
-                                /**
-                                 * 1. Edit your name
-                                 * 2. Edit your email
-                                 * 3. Edit your password
-                                 * 4. Delete your account
-                                 * 5. Return to main menu
-                                 * **/
                                 switch (Integer.parseInt(reader.readLine())) {
-                                    case 1 :
-                                        current.setName(reader.readLine());
-                                        writer.println("SUCCESS");
-                                        writer.flush();
+                                    case 1:
+                                        String name = reader.readLine();
+                                        current.setName(name);
+                                        System.out.println("set name to " + name);
+                                        editAcc = false;
                                         break;
-                                    case 2 :
+                                    case 2:
                                         do {
-                                            String newEmail = reader.readLine();
-                                            if (doesEmailExist(newEmail)) {
-                                                writer.println("FAILED");
+                                            String email = reader.readLine();
+                                            if (doesEmailExist(email)) {
+                                                writer.println("ERROR");
                                                 writer.flush();
+                                                if (reader.readLine().equals("NO")) {
+                                                    break;
+                                                }
                                             } else {
-                                                current.setEmail(newEmail);
+                                                current.setEmail(email);
                                                 writer.println("SUCCESS");
                                                 writer.flush();
                                                 break;
                                             }
-                                        } while(true);
-                                        break;
-                                    case 3 :
-                                        current.setPassword(reader.readLine());
-                                        writer.println("SUCCESS");
-                                        writer.flush();
-                                        break;
-                                    case 4 :
-                                        sellersList.remove((User) current);
-                                        //serverSocket.close();
-                                        editAcc = false;
-                                        mainmenu = false;
-                                        break;
-                                    case 5 :
+                                        } while (true);
                                         editAcc = false;
                                         break;
-                                }
-                                if (!mainmenu) {
-                                    sellersList.set(indexUser,current);
+                                case 3:
+                                    String password = reader.readLine();
+                                    current.setPassword(password);
+                                    editAcc = false;
+                                    break;
+                                case 4:
+                                    sellersList.remove(current);
                                     writeFile();
-                                }
-                            } while (editAcc);
+                                    socket.close();
+                                    break;
+                                case 5:
+                                    editAcc = false;
+                            }
+                        } while (editAcc);
+                        break;
                         case 2 :    //view farmer's market
                             /**
                              * 1. View booths
