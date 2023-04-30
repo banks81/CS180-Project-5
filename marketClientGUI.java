@@ -1,3 +1,5 @@
+package Proj4;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -51,6 +53,24 @@ public class marketClientGUI implements Runnable {
     //Sellers Menu
     JFrame sellerWindow;
     JLabel sellerTitle;
+    JButton viewBooths;
+    JButton addBooth;
+    JButton editBooth;
+    JButton removeBooth;
+    JButton backToMainFromSeller;
+
+
+    //Booth Menu
+    JFrame boothWindow;
+    JLabel boothTitle;
+    JButton viewProducts;
+    JButton viewSales;
+    JButton addProduct;
+    JButton editProduct;
+    JButton removeProduct;
+    JButton importProduct;
+    JButton exportProduct;
+    JButton backToSellerFromBooth;
 
 
     //Listings Menu
@@ -257,16 +277,64 @@ public class marketClientGUI implements Runnable {
         Container sellerContent = sellerWindow.getContentPane();
         sellerContent.setLayout(new BorderLayout());
         JPanel sellerHeaderPnl = new JPanel();
+        JPanel sellerBtnPnl = new JPanel(new GridLayout(2, 2, 10, 15));
         //Create Objects
         sellerTitle = new JLabel("Seller Option");
+        viewBooths = new JButton("View your Booths");
+        addBooth = new JButton("Add a Booth");
+        editBooth = new JButton("Edit a Booth");
+        removeBooth = new JButton("Remove a Booth");
+        backToMainFromSeller = new JButton("Back");
         //Paneling for organization
         sellerHeaderPnl.add(sellerTitle);
-        sellerContent.add(sellerHeaderPnl);
+        sellerContent.add(sellerHeaderPnl, BorderLayout.NORTH);
+        sellerBtnPnl.add(viewBooths);
+        sellerBtnPnl.add(addBooth);
+        sellerBtnPnl.add(editBooth);
+        sellerBtnPnl.add(removeBooth);
+        sellerContent.add(sellerBtnPnl, BorderLayout.CENTER);
+        sellerContent.add(backToMainFromSeller, BorderLayout.SOUTH);
         //General Config
         sellerWindow.setSize(500, 300);
         sellerWindow.setLocationRelativeTo(null);
         sellerWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         sellerWindow.setVisible(false);
+
+
+
+        //BOOTH MENU SETUP
+        boothWindow = new JFrame("Booth View");
+        Container boothContent = boothWindow.getContentPane();
+        boothContent.setLayout(new BorderLayout());
+        JPanel boothHeaderPnl = new JPanel();
+        JPanel boothBtnPnl = new JPanel(new GridLayout(4, 2, 10, 15));
+        //Create Objects
+        boothTitle = new JLabel("Set this later");
+        viewProducts = new JButton("View Products");
+        viewSales = new JButton("View Sales");
+        addProduct = new JButton("Add a Product");
+        editProduct = new JButton("Edit a Product");
+        removeProduct = new JButton("Remove a Product");
+        importProduct = new JButton("Import a Product");
+        exportProduct = new JButton("Export a Product");
+        backToSellerFromBooth = new JButton("Back");
+        //Paneling for organization
+        boothHeaderPnl.add(boothTitle);
+        boothContent.add(boothHeaderPnl, BorderLayout.NORTH);
+        boothBtnPnl.add(viewProducts);
+        boothBtnPnl.add(viewSales);
+        boothBtnPnl.add(addProduct);
+        boothBtnPnl.add(editProduct);
+        boothBtnPnl.add(removeProduct);
+        boothBtnPnl.add(importProduct);
+        boothBtnPnl.add(exportProduct);
+        boothContent.add(boothBtnPnl, BorderLayout.CENTER);
+        boothContent.add(backToSellerFromBooth, BorderLayout.SOUTH);
+        //General Config
+        boothWindow.setSize(500, 300);
+        boothWindow.setLocationRelativeTo(null);
+        boothWindow.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        boothWindow.setVisible(false);
 
 
         //LISTINGS MENU SETUP
@@ -654,7 +722,9 @@ public class marketClientGUI implements Runnable {
                                 } catch (IOException ex) {
                                     break;
                                 }
+                                System.out.println(success);
                             } while (true);
+                            System.out.println("IM OUT");
                             if (failuresArr.isEmpty()) {
                                 JOptionPane.showMessageDialog(null, "Your cart has been successfully purchased!",
                                         "Cart Confirmation", JOptionPane.INFORMATION_MESSAGE);
@@ -983,7 +1053,16 @@ public class marketClientGUI implements Runnable {
             }
         });
 
-        //LISTINGS WINDOW
+
+
+        //SELLER WINDOW
+        backToMarketFromListings.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+
 
 
         //BACK BUTTONS
@@ -1014,6 +1093,21 @@ public class marketClientGUI implements Runnable {
                 mainWindow.setVisible(true);
             }
         });
+        backToMainFromSeller.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //writer.println("7");
+                sellerWindow.setVisible(false);
+                mainWindow.setVisible(true);
+            }
+        });
+        backToSellerFromBooth.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //writer.println("7");
+                boothWindow.setVisible(false);
+                sellerWindow.setVisible(true);
+            }
+        });
+
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (userType == 1) {
@@ -1061,6 +1155,20 @@ public class marketClientGUI implements Runnable {
             public void windowClosing(WindowEvent e) {
                 System.out.println("CLOSED");
                 listingsWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        sellerWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                sellerWindow.setVisible(true);
+                JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        boothWindow.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.out.println("CLOSED");
+                boothWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
