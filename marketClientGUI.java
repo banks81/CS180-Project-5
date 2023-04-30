@@ -1179,7 +1179,7 @@ public class marketClientGUI implements Runnable {
                 do {
                     String prodName = JOptionPane.showInputDialog("What is the name of your product? \n(Cancel to stop entering more products)");
                     if (prodName == null) {
-                        writer.println("0");
+                        writer.println("END OF PRODUCT");
                         break;
                     }
                     writer.println(prodName);
