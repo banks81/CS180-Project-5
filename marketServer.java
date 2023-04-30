@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class MarketServer implements Runnable {
+public class marketServer implements Runnable {
     public static ArrayList<User> customersList = new ArrayList<>();
     public static ArrayList<User> sellersList = new ArrayList<>();
     public static ArrayList<Store> storesList = new ArrayList<>(); //arrayList of stores in the marketplace
@@ -14,7 +14,7 @@ public class MarketServer implements Runnable {
     public static ArrayList<String> customerTempCart = new ArrayList<>();
     Socket socket;
     public static Object gateKeeper = new Object();
-    public MarketServer(Socket socket){
+    public marketServer(Socket socket){
         this.socket = socket;
     }
     public static Products productString(String strings) {
@@ -291,7 +291,7 @@ public class MarketServer implements Runnable {
         System.out.println("Waiting for connection on 4242");
         while (true){
             Socket socket = serverSocket.accept();
-            MarketServer server = new MarketServer(socket);
+            marketServer server = new marketServer(socket);
             new Thread(server).start();
         }
     }
@@ -523,10 +523,11 @@ public class MarketServer implements Runnable {
                                             continue;
                                         }
                                         marketChoice = Integer.parseInt(listingAction);
+                                        int productIndex = marketChoice;
                                         readFile();
                                         if (marketChoice <= productsList.size()) {
                                             System.out.println("product chosen: " + productsList.get(marketChoice).getName());
-                                            Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
+                                            Products productOfChoice = productsList.get(productIndex);  //They already have name, storename, description, quantity and price
                                             /**
                                              * 1. add one to cart
                                              * 2. purchase now
@@ -551,8 +552,8 @@ public class MarketServer implements Runnable {
                                                     System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
-                                                        productsList.get(marketChoice).setQuantity(productOfChoice.getQuantity() - quantity);
-                                                        productsList.get(marketChoice).setSales(productOfChoice.getSales() + quantity);
+                                                        productsList.get(productIndex).setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productsList.get(productIndex).setSales(productOfChoice.getSales() + quantity);
                                                         current.addProducts(productOfChoice.getName(), quantity);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
@@ -632,8 +633,8 @@ public class MarketServer implements Runnable {
                                                                 do {
                                                                     int quantity = Integer.parseInt(reader.readLine());
                                                                     if (product.getQuantity() >= quantity) {
-                                                                        product.setQuantity(product.getQuantity() - quantity);
-                                                                        product.setSales(product.getSales() + quantity);
+                                                                        searchResults.get(searchIndex - 1).setQuantity(product.getQuantity() - quantity);
+                                                                        searchResults.get(searchIndex - 1).setSales(product.getSales() + quantity);
                                                                         writer.println("SUCCESS");  //is in stock
                                                                         writer.flush();
                                                                         break;
@@ -725,6 +726,7 @@ public class MarketServer implements Runnable {
                                         if (marketChoice <= productsList.size()) {
                                             System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
+                                            int prodIndex = marketChoice;
                                             /**
                                              * 1. add one to cart
                                              * 2. purchase now
@@ -748,8 +750,8 @@ public class MarketServer implements Runnable {
                                                     System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
-                                                        productsList.get(marketChoice).setQuantity(productOfChoice.getQuantity() - quantity);
-                                                        productsList.get(marketChoice).setSales(productOfChoice.getSales() + quantity);
+                                                        productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productsList.get(prodIndex).setSales(productOfChoice.getSales() + quantity);
                                                         current.addProducts(productOfChoice.getName(), quantity);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
@@ -807,6 +809,7 @@ public class MarketServer implements Runnable {
                                         if (marketChoice <= productsList.size()) {
                                             System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
+                                            int prodIndex = marketChoice;
                                             /**
                                              * 1. add one to cart
                                              * 2. purchase now
@@ -831,8 +834,8 @@ public class MarketServer implements Runnable {
                                                     System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
-                                                        productsList.get(marketChoice).setQuantity(productOfChoice.getQuantity() - quantity);
-                                                        productsList.get(marketChoice).setSales(productOfChoice.getSales() + quantity);
+                                                        productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
+                                                        productsList.get(prodIndex).setSales(productOfChoice.getSales() + quantity);
                                                         current.addProducts(productOfChoice.getName(), quantity);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
