@@ -1,4 +1,3 @@
-package Proj4;
 
 import javax.swing.*;
 import java.awt.*;
@@ -633,6 +632,7 @@ public class marketClientGUI implements Runnable {
                 writer.println(selectedProductIndex);
                 writer.flush();
                 String [] productDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
+                System.out.println(productsList.get(selectedProductIndex).getQuantity());
                 int productAction = JOptionPane.showOptionDialog(null, productsList.get(selectedProductIndex).toString(), "Product Description",
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, productDialogButtons, productDialogButtons[0]);
                 writer.println(productAction);
@@ -865,6 +865,7 @@ public class marketClientGUI implements Runnable {
                                 "Product List", JOptionPane.QUESTION_MESSAGE, null, productChoices, productChoices[0]);
 
                         int searchIndexInt;
+
                         if (searchIndex.equals("null")) { //user hit "cancel" button
                             searchIndexInt = searchResults.size() + 1;
                         } else {
@@ -1053,17 +1054,58 @@ public class marketClientGUI implements Runnable {
             }
         });
 
-
-
         //SELLER WINDOW
-        backToMarketFromListings.addActionListener(new ActionListener() {
+        viewBooths.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                writer.println("1"); //view booths
+                writer.flush();
+                ArrayList<String> storeNames = new ArrayList<>();
+                String[] storeNamesArr;
+                int searchIndexInt = 0;
+                try {
+                    do {
+                        String storeName = reader.readLine();
+                        if (storeName.equals("END")) {
+                            break;
+                        }
+                        System.out.println(storeName);
+                        storeNames.add(storeName);
+                    } while (true);
+                    storeNamesArr = new String[storeNames.size()];
+                    if (storeNames.isEmpty() || storeNames == null) {
+                        return;
+                    }
 
+                    for (int i = 0; i < storeNames.size(); i++) {
+                        int j = i + 1;
+                        String tempStoreName = storeNames.get(i);
+                        storeNamesArr[i] = j + ". " + tempStoreName;
+                    }
+                    String searchIndex = (String) JOptionPane.showInputDialog(null, "Which booth would you like to view?",
+                            "Store List", JOptionPane.QUESTION_MESSAGE, null, storeNamesArr, storeNamesArr[0]);
+
+                    try {
+                        searchIndexInt = Integer.parseInt(searchIndex.substring(0, 1)) - 1;
+                    }   catch (NumberFormatException e1 ) {
+                        searchIndexInt = -1;
+                    }
+                    System.out.println(searchIndexInt);
+                    System.out.println(searchIndex);
+                    writer.println(searchIndexInt);
+                    writer.flush();
+
+                } catch (Exception e4) {
+                    e4.printStackTrace();
+                }
+
+                boothHeaderPnl.remove(boothTitle);
+                boothTitle = new JLabel(storeNames.get(searchIndexInt));
+                boothHeaderPnl.add(boothTitle);
+
+                sellerWindow.setVisible(false);
+                boothWindow.setVisible(true);
             }
         });
-
-
-
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
