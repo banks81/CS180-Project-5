@@ -1106,6 +1106,52 @@ public class marketClientGUI implements Runnable {
                 boothWindow.setVisible(true);
             }
         });
+        
+        viewProducts.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("1"); //view products
+                writer.flush();
+                System.out.println("viewing products");
+                ArrayList<Products> sellerProductList = new ArrayList<>();
+                String[] sellerProducts;
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        sellerProductList.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+                if (sellerProductList == null || sellerProductList.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "You do not have any products to view!",
+                            "View Products", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                for(int i = 0; i < sellerProductList.size(); i++) {
+                    System.out.println(sellerProductList.get(i));
+                }
+                sellerProducts = new String[sellerProductList.size()];
+                for (int i = 0; i < sellerProductList.size(); i++   ) {
+                    int j = i + 1;
+                    sellerProducts[i] = j + ". " + sellerProductList.get(i).getName();
+                }
+                String productToView = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
+                        "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
+                int productToViewInt;
+                try {
+                    productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
+                } catch (NumberFormatException e1) {
+                    productToViewInt = -1;
+                }
+                if (productToViewInt != -1) {
+                    JOptionPane.showMessageDialog(null, sellerProductList.get(productToViewInt).toString(),
+                            "Product Info", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+            }
+        });
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
