@@ -1242,6 +1242,7 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("4");
                 writer.flush();
+                boolean edited = false;
                 System.out.println("viewing products to edit");
                 ArrayList<Products> sellerProductList = new ArrayList<>();
                 String[] sellerProducts;
@@ -1301,7 +1302,7 @@ public class marketClientGUI implements Runnable {
                     }
                     String name = JOptionPane.showInputDialog("Current Name: " + editingProduct.getName() +
                             "\nEnter a new name:");
-                    if (name == null) {
+                    if (name == null || name.equals("")) {
                         writer.println(editingProduct.getName());
                         writer.flush();
                         JOptionPane.showMessageDialog(null, "Name was not changed!", "Name Change Error",
@@ -1312,6 +1313,7 @@ public class marketClientGUI implements Runnable {
                         editingProduct.setName(name);
                         JOptionPane.showMessageDialog(null, "Name has been set to " + name,
                                 "Success!", JOptionPane.INFORMATION_MESSAGE);
+                        edited = true;
                     }
                 } else { //do not change name
                     try {
@@ -1336,7 +1338,7 @@ public class marketClientGUI implements Runnable {
                     }
                     String description = JOptionPane.showInputDialog("Current Description:\n" + editingProduct.getDescription()
                             + "\nEnter a new description:");
-                    if (description == null) {
+                    if (description == null || description.equals("")) {
                         writer.println(editingProduct.getDescription());
                         writer.flush();
                         JOptionPane.showMessageDialog(null, "Description was not changed!", "Name Change Error",
@@ -1347,6 +1349,7 @@ public class marketClientGUI implements Runnable {
                         editingProduct.setDescription(description);
                         JOptionPane.showMessageDialog(null, "Description has been set to " + description,
                                 "Success!", JOptionPane.INFORMATION_MESSAGE);
+                        edited = true;
                     }
                 } else { //do not change name
                     try {
@@ -1386,9 +1389,17 @@ public class marketClientGUI implements Runnable {
                     } while (true);
                     writer.println(price);
                     writer.flush();
-                    editingProduct.setPrice(price);
-                    JOptionPane.showMessageDialog(null, "Price has been set to " + price,
-                            "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    if (price != editingProduct.getPrice()) {
+                        edited = true;
+                        editingProduct.setPrice(price);
+                        JOptionPane.showMessageDialog(null, "Price has been set to " + price,
+                                "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Price has not been changed!", "No Change",
+                                JOptionPane.ERROR_MESSAGE);
+                        editingProduct.setPrice(price);
+                    }
+
 
                 } else { //do not change price
                     try {
@@ -1428,9 +1439,17 @@ public class marketClientGUI implements Runnable {
                     } while (true);
                     writer.println(quantity);
                     writer.flush();
-                    editingProduct.setQuantity(quantity);
-                    JOptionPane.showMessageDialog(null, "Quantity has been set to " + quantity,
-                            "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    if (quantity != editingProduct.getQuantity()) {
+                        edited = true;
+                        editingProduct.setQuantity(quantity);
+                        JOptionPane.showMessageDialog(null, "Quantity has been set to " + quantity,
+                                "Success!", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Quantity has not been changed!", "No Change",
+                                JOptionPane.ERROR_MESSAGE);
+                        editingProduct.setQuantity(quantity);
+                    }
+
 
                 } else { //do not change price
                     try {
@@ -1441,10 +1460,15 @@ public class marketClientGUI implements Runnable {
                     }
                 }
                 System.out.println("done editing product");
-                JOptionPane.showMessageDialog(null, "Product was successfully edited!" +
-                                "\nNew Product Information:\n" +
-                        editingProduct.toString(),
-                        "Success!", JOptionPane.INFORMATION_MESSAGE);
+                if (edited) {
+                    JOptionPane.showMessageDialog(null, "Product was successfully edited!" +
+                                    "\nNew Product Information:\n" +
+                                    editingProduct.toString(),
+                            "Success!", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "No change was made!" +
+                            "\nProduct Information:\n" + editingProduct.toString(), "No Change", JOptionPane.INFORMATION_MESSAGE);
+                }
 
             }
         });
