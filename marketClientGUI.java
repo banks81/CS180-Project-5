@@ -1509,6 +1509,78 @@ public class marketClientGUI implements Runnable {
 
             }
         });
+        removeProduct.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                writer.println("5");
+                writer.flush();
+                System.out.println("viewing products to remove");
+                ArrayList<Products> sellerProductList = new ArrayList<>();
+                String[] sellerProducts;
+                do {
+                    try {
+                        Products newProduct = (Products) ois.readObject();
+                        sellerProductList.add(newProduct);
+                        System.out.println(newProduct.getName() + " received");
+                    } catch (Exception e1) {
+                        break;
+                    }
+                } while (true);
+                if (sellerProductList == null || sellerProductList.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "You do not have any products to remove!",
+                            "View Products", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                sellerProducts = new String[sellerProductList.size()];
+                for (int i = 0; i < sellerProductList.size(); i++   ) {
+                    int j = i + 1;
+                    sellerProducts[i] = j + ". " + sellerProductList.get(i).getName();
+                }
+                String productToView = (String) JOptionPane.showInputDialog(null,
+                        "Which product would you like to remove?",
+                        "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
+                System.out.println(productToView);
+                int productToViewInt;
+                try {
+                    if (productToView == null) {
+                        productToViewInt = -1;
+                    } else {
+                        productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
+                    }
+                } catch (NumberFormatException e1) {
+                    productToViewInt = -1;
+                }
+                if (productToViewInt == -1) {
+                    JOptionPane.showMessageDialog(null, "No product was removed!", "Product Message",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+                Products currentProduct;
+                if (productToViewInt != -1) {
+                    currentProduct = sellerProductList.get(productToViewInt);
+                } else {
+                    currentProduct = null;
+                }
+                writer.println(productToViewInt); //prints -1 if it cancelled removing the product
+                writer.flush();
+                if (productToViewInt == -1) {
+                    return;
+                }
+                int decisionThing = JOptionPane.showConfirmDialog(null, "Current Item: \n" +
+                        currentProduct.toString() + "\nWould you really like to delete this item?",
+                        "Edit Name", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
+
+                writer.println(decisionThing); //prints 0 for yes delete item, 1 for no, -1 for cancel                writer.flush();
+                writer.flush();
+                if (decisionThing == 0) {
+                    JOptionPane.showMessageDialog(null, currentProduct.getName() +
+                            " was successfully deleted!", "Success!", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, currentProduct.getName() + " was not deleted!",
+                            "Deletion Message", JOptionPane.ERROR_MESSAGE);
+                }
+
+                System.out.println(decisionThing);
+
+            }
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
