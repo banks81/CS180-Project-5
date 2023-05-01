@@ -1079,9 +1079,6 @@ public class marketClientGUI implements Runnable {
                     } while (true);
                    
                     storeNamesArr = new String[storeNames.size()];
-                    if (storeNames.isEmpty() || storeNames == null) {
-                        return;
-                    }
 
                     for (int i = 0; i < storeNames.size(); i++) {
                         int j = i + 1;
@@ -1648,6 +1645,8 @@ public class marketClientGUI implements Runnable {
         backToSellerFromBooth.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 writer.println("8");
+                writer.flush();
+                writer.println("2");
                 writer.flush();
                 boothWindow.setVisible(false);
                 sellerWindow.setVisible(true);
