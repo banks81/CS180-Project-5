@@ -1179,16 +1179,27 @@ public class marketServer implements Runnable {
                                                  * 2. END
                                                  * **/
                                                 case 6 :    //6. Import product csv file
+                                                    readFile();
+                                                    current = readFileRefresh(current);
+                                                    currentStore = current.getStore().get(storeInt);
                                                     try {
+                                                        String cancel = reader.readLine();
+                                                        if (cancel.equals("CANCEL")) {
+                                                            writeFile();
+                                                            break;
+                                                        }
                                                         File file = (File) ois.readObject();
                                                         currentStore.importProducts(file);
                                                         writer.println("YUP");
                                                         writer.flush();
-                                                    } catch (Exception exc)  {
+                                                    } catch (Exception exc) {
                                                         exc.printStackTrace();
                                                         writer.println("NO");
                                                         writer.flush();
                                                     }
+
+                                                    current.getStore().set(storeInt,currentStore);
+                                                    sellersList.set(indexUser,current);
                                                     writeFile();
                                                     break;
                                                 //expects:
@@ -1202,8 +1213,26 @@ public class marketServer implements Runnable {
                                                  * else : ERROR
                                                  * **/
                                                 case 7 :    //7. Export product csv file
-                                                    oos.writeObject(currentStore);
-                                                    oos.flush();
+                                                    readFile();
+                                                    current = readFileRefresh(current);
+                                                    currentStore = current.getStore().get(storeInt);
+                                                    try {
+                                                        for (Products p : currentStore.goods) {
+                                                            oos.writeObject(p);
+                                                            oos.flush();
+                                                        }
+                                                        oos.writeObject("END");
+                                                        oos.flush();
+                                                        writer.println("YUP");
+                                                        writer.flush();
+                                                    } catch (Exception exc){
+                                                        exc.printStackTrace();
+                                                        writer.println("NO");
+                                                        writer.flush();
+                                                    }
+                                                    current.getStore().set(storeInt,currentStore);
+                                                    sellersList.set(indexUser,current);
+                                                    writeFile();
                                                     break;
                                                 //expects
                                                 /**
