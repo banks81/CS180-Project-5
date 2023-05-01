@@ -1068,6 +1068,7 @@ public class marketClientGUI implements Runnable {
                 String[] storeNamesArr;
                 int searchIndexInt = 0;
                 try {
+                    //Read in store names
                     do {
                         String storeName = reader.readLine();
                         if (storeName.equals("END")) {
@@ -1076,6 +1077,7 @@ public class marketClientGUI implements Runnable {
                         System.out.println(storeName);
                         storeNames.add(storeName);
                     } while (true);
+                   
                     storeNamesArr = new String[storeNames.size()];
                     if (storeNames.isEmpty() || storeNames == null) {
                         return;
@@ -1086,6 +1088,14 @@ public class marketClientGUI implements Runnable {
                         String tempStoreName = storeNames.get(i);
                         storeNamesArr[i] = j + ". " + tempStoreName;
                     }
+                    
+                    //Check if any stores were read
+                    String emptyStores = reader.readLine();
+                    if (emptyStores.equals("NO STORES")) {
+                        return;
+                    }
+                    
+                    //Ask user which store they choose
                     String searchIndex = (String) JOptionPane.showInputDialog(null, "Which booth would you like to view?",
                             "Store List", JOptionPane.QUESTION_MESSAGE, null, storeNamesArr, storeNamesArr[0]);
 
