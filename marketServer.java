@@ -1278,8 +1278,23 @@ public class marketServer implements Runnable {
                                                     readFile();
                                                     current = readFileRefresh(current);
                                                     currentStore = current.getStore().get(storeInt);
-                                                    oos.writeObject(currentStore);
-                                                    oos.flush();
+                                                    try {
+                                                        for (Products p : currentStore.goods) {
+                                                            oos.writeObject(p);
+                                                            oos.flush();
+                                                        }
+                                                        oos.writeObject("END");
+                                                        oos.flush();
+                                                        writer.println("YUP");
+                                                        writer.flush();
+                                                    } catch (Exception exc){
+                                                        exc.printStackTrace();
+                                                        writer.println("NO");
+                                                        writer.flush();
+                                                    }
+                                                    current.getStore().set(storeInt,currentStore);
+                                                    sellersList.set(indexUser,current);
+                                                    writeFile();
                                                     break;
                                                 //expects
                                                 /**
