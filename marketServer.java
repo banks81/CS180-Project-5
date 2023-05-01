@@ -1162,13 +1162,15 @@ public class marketServer implements Runnable {
                                                     oos.writeObject("END");
                                                     oos.flush();
                                                     if (!currentStore.getGoods().isEmpty()) {
-                                                        Integer index = Integer.parseInt(reader.readLine()) - 1;
-                                                        currentStore.getGoods().remove(index);
+                                                        int index = Integer.parseInt(reader.readLine());
+                                                        if (index != -1 && Integer.parseInt(reader.readLine()) == 0) {
+                                                            currentStore.getGoods().remove(index);
+                                                        }
                                                     }
                                                     current.getStore().set(storeInt,currentStore);
                                                     sellersList.set(indexUser,current);
+                                                    current = (Seller) sellersList.get(indexUser);
                                                     writeFile();
-                                                    break;
                                                 //expects:
                                                 /**
                                                  * integer value of index for product desired to delete(from 1~n)
