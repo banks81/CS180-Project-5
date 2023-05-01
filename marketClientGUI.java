@@ -1562,6 +1562,14 @@ public class marketClientGUI implements Runnable {
                 System.out.println("import csv test");
                 String csvFileName = JOptionPane.showInputDialog(null, "Enter the csv file name: ", "Import Product CSV"
                         , JOptionPane.INFORMATION_MESSAGE);
+                if (csvFileName == null || csvFileName.equals("")) {
+                    writer.println("CANCEL");
+                    writer.flush();
+                    return;
+                } else {
+                    writer.println("PROCEED");
+                    writer.flush();
+                }
                 File file = new File(csvFileName);
                 if (!file.exists()) {
                     JOptionPane.showMessageDialog(null, "Error! File does not exist", "Error",
