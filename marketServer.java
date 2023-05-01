@@ -1104,7 +1104,13 @@ public class marketServer implements Runnable {
                                         writer.flush();
 
                                         if (current.getStore().isEmpty() || current.getStore() == null) {
+                                            System.out.println("no stores");
+                                            writer.println("NO STORES");
+                                            writer.flush();
                                             break;
+                                        } else {
+                                        writer.println("STORES");
+                                        writer.flush();
                                         }
                                         int storeInt = Integer.parseInt(reader.readLine());
                                         Store currentStore = current.getStore().get(storeInt);
