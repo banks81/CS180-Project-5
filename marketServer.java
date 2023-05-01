@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
@@ -1099,6 +1098,7 @@ public class marketServer implements Runnable {
                             do {
                                 System.out.println("RUNNING FM SCREEN");
                                 readFile();
+                                current = readFileRefresh(current);
                                 int farmersMarketDecision = Integer.parseInt(reader.readLine());
                                 System.out.println("market decision -- "+farmersMarketDecision);
                                 switch (farmersMarketDecision) {
@@ -1141,6 +1141,8 @@ public class marketServer implements Runnable {
                                         do {
                                             System.out.println("running booth");
                                             readFile();
+                                            current = readFileRefresh(current);
+                                            currentStore = current.getStore().get(storeInt);
                                             switch (Integer.parseInt(reader.readLine())) {
                                                 case 1 :    //1. View products
                                                     for (Products productInStore : currentStore.getGoods()) {
@@ -1211,6 +1213,7 @@ public class marketServer implements Runnable {
                                                  * **/
                                                 case 5 :    //5. Remove product
                                                     readFile();
+                                                    currentStore = readFileRefresh(current).getStore().get(storeInt);
                                                     for (Products products : currentStore.getGoods()) {
                                                         oos.writeObject(products);
                                                         oos.flush();
@@ -1221,6 +1224,7 @@ public class marketServer implements Runnable {
                                                         Integer index = Integer.parseInt(reader.readLine()) - 1;
                                                         currentStore.getGoods().remove(index);
                                                     }
+                                                    current.getStore().set(storeInt,currentStore);
                                                     sellersList.set(indexUser,current);
                                                     writeFile();
                                                     break;
@@ -1395,5 +1399,15 @@ public class marketServer implements Runnable {
             }
         }
         return emailExists;
+    }
+    public static Seller readFileRefresh(Seller currentSeller) {
+        for (User seller : sellersList) {
+            Seller sellerListed = (Seller) seller;
+            if (sellerListed.getEmail().equals(currentSeller.getEmail()) && sellerListed.getPassword().equals(currentSeller.getPassword())) {
+                currentSeller = sellerListed;
+                break;
+            }
+        }
+        return (currentSeller);
     }
 }
