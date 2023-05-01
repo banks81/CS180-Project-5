@@ -1604,6 +1604,53 @@ public class marketClientGUI implements Runnable {
 
             }
         });
+        exportProduct.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                writer.println("7");
+                writer.flush();
+                System.out.println("export csv test");
+                String csvFileName = JOptionPane.showInputDialog(null, "Enter the csv file name: ", "Import Product CSV"
+                        , JOptionPane.INFORMATION_MESSAGE);
+                File file = new File(csvFileName);
+                ArrayList<Products> productCSV = new ArrayList<>();
+                while (true){
+                    try {
+                        if (ois.readObject().equals("END")){
+                            break;
+                        }
+                        Products good = (Products) ois.readObject();
+                        productCSV.add(good);
+                    } catch (Exception exc){
+                        exc.printStackTrace();
+                    }
+                }
+                try {
+                    FileWriter fw = new FileWriter(file);
+                    BufferedWriter bfw = new BufferedWriter(fw);
+                    for (Products good : productCSV) {
+                        bfw.write(good.getName() + "," + good.getPrice() + "," + good.getQuantity() + "," + good.getDescription() +
+                                "," + good.getSales() + "," + good.getStoreName() + "\n");
+                    }
+                    bfw.close();
+                } catch (IOException exc) {
+                    exc.printStackTrace();
+                }
+                try {
+                    String passFail = reader.readLine();
+                    if (passFail.equals("YUP")){
+                        JOptionPane.showMessageDialog(null, "Products successfully imported!", "Import Success"
+                                , JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Error! Failed to import products", "Import Fail",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception w){
+                    w.printStackTrace();
+                }
+
+            }
+        });
 
         //BACK BUTTONS
         backToMarketFromListings.addActionListener(new ActionListener() {
