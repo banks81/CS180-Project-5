@@ -1419,6 +1419,7 @@ public class marketServer implements Runnable {
     
     public static void customerListRefresh(Products productOfchoice, Customer currentUser) {
         boolean isPresent = false;
+        int storeIndex = 0;
         for (User seller : sellersList) {
             Seller sellerListed = (Seller) seller;
             for (Store store : sellerListed.getStore()) {
@@ -1431,9 +1432,15 @@ public class marketServer implements Runnable {
                     }
                     if (!isPresent) {
                         store.getCustomers().add(currentUser);
+                        sellerListed.getStore().set(storeIndex,store);
                     }
                     break;
                 }
+                storeIndex++;
+            }
+            if (!isPresent) {
+                sellersList.set(sellersList.indexOf(seller), sellerListed);
+                break;
             }
         }
     }
