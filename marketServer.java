@@ -1214,6 +1214,11 @@ public class marketServer implements Runnable {
                                                  * **/
                                                 case 6 :    //6. Import product csv file
                                                     try {
+                                                        String cancel = reader.readLine();
+                                                        if (cancel.equals("CANCEL")) {
+                                                            writeFile();
+                                                            break;
+                                                        }
                                                         File file = (File) ois.readObject();
                                                         currentStore.importProducts(file);
                                                         writer.println("YUP");
