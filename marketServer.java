@@ -1032,6 +1032,7 @@ public class marketServer implements Runnable {
                                     case 5:
                                         editAcc = false;
                                 }
+                                refreshSeller(current);
                             } while (editAcc);
                             break;
                         case 2 :    //view farmer's market
@@ -1402,6 +1403,15 @@ public class marketServer implements Runnable {
                 sellersList.set(sellersList.indexOf(seller), sellerListed);
                 break;
             }
+        }
+    }
+    
+    public static void refreshSeller(Seller seller) {
+        for (Store store : seller.getStore()) {
+            Store newStore = store;
+            newStore.setSellerName(seller.getName());
+            newStore.setSellerEmail(seller.getEmail());
+            seller.getStore().set(seller.getStore().indexOf(store), newStore);
         }
     }
 }
