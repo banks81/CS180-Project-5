@@ -1,7 +1,10 @@
+package Proj4;
+
 import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -150,7 +153,11 @@ public class marketServer implements Runnable {
                     isAtDashline = false;
                 }
                 if (lineNext == null) {
-                    storesList.add(currentStore);
+                    if (!currentStore.getName().equals("Dummy")) {
+                        storesList.add(currentStore);
+                    } else {
+                        System.out.println("DUMMY DETECTED");
+                    }
                     currentSeller.addStore(currentStore);
                     break;
                 }
@@ -422,7 +429,7 @@ public class marketServer implements Runnable {
                 boolean mainmenu = true;
                 /**
                  * 1. view / edit your acc
-                 * 2. view farmer's market <<holy shit
+                 * 2. view farmer's market
                  * 3. quit
                  * **/
                 do {
@@ -1045,8 +1052,6 @@ public class marketServer implements Runnable {
                                         String name = reader.readLine();
                                         current.setName(name);
                                         System.out.println("set name to " + name);
-                                        sellersList.set(indexUser,current);
-                                        writeFile();
                                         editAcc = false;
                                         break;
                                     case 2:
@@ -1066,15 +1071,11 @@ public class marketServer implements Runnable {
                                             }
                                         } while (true);
                                         editAcc = false;
-                                        sellersList.set(indexUser,current);
-                                        writeFile();
                                         break;
                                     case 3:
                                         String password = reader.readLine();
                                         current.setPassword(password);
                                         editAcc = false;
-                                        sellersList.set(indexUser,current);
-                                        writeFile();
                                         break;
                                     case 4:
                                         sellersList.remove(current);
@@ -1094,17 +1095,21 @@ public class marketServer implements Runnable {
                              * 4. Remove booth
                              * 5. Go back
                              * **/
+                            System.out.println("FARMERS MARKET");
                             boolean marketMenu = true;
                             do {
+                                System.out.println("RUNNING FM SCREEN");
                                 readFile();
-                                current = readFileRefresh(current);
-                                switch (Integer.parseInt(reader.readLine())) {
+                                int farmersMarketDecision = Integer.parseInt(reader.readLine());
+                                System.out.println("market decision -- "+farmersMarketDecision);
+                                switch (farmersMarketDecision) {
                                     case 1: //1. View booths
-                                        readFile();
-                                        current = readFileRefresh(current);
+                                        System.out.println("view booths");
                                         for (Store storeInList : current.getStore()) {
-                                            writer.println(storeInList.getName());
-                                            writer.flush();
+                                            if (!storeInList.getName().equals("Dummy")) {
+                                                writer.println(storeInList.getName());
+                                                writer.flush();
+                                            }
                                         }
                                         writer.println("END");
                                         writer.flush();
@@ -1115,11 +1120,13 @@ public class marketServer implements Runnable {
                                             writer.flush();
                                             break;
                                         } else {
-                                        writer.println("STORES");
-                                        writer.flush();
+                                            writer.println("STORES");
+                                            writer.flush();
                                         }
+
                                         int storeInt = Integer.parseInt(reader.readLine());
                                         Store currentStore = current.getStore().get(storeInt);
+
                                         /**
                                          * 1. View products
                                          * 2. View sales
@@ -1131,12 +1138,12 @@ public class marketServer implements Runnable {
                                          * 8. Go back
                                          * **/
                                         boolean boothmenu = true;
+                                        System.out.println("into booth");
                                         do {
+                                            System.out.println("running booth");
+                                            readFile();
                                             switch (Integer.parseInt(reader.readLine())) {
                                                 case 1 :    //1. View products
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     for (Products productInStore : currentStore.getGoods()) {
                                                         oos.writeObject(productInStore);
                                                         oos.flush();
@@ -1145,16 +1152,10 @@ public class marketServer implements Runnable {
                                                     oos.flush();
                                                     break;
                                                 case 2 :    //2. View sales
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     writer.println(String.format("%d", currentStore.getSales()));
                                                     writer.flush();
                                                     break;
                                                 case 3 :    //3. Add product
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     boolean productImport = true;
                                                     while (productImport) {
                                                         String newProduct = reader.readLine();
@@ -1172,9 +1173,6 @@ public class marketServer implements Runnable {
                                                     writeFile();
                                                     break;
                                                 case 4 :    //4. Edit product
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     for (Products products : currentStore.getGoods()) {
                                                         oos.writeObject(products);
                                                         oos.flush();
@@ -1214,8 +1212,6 @@ public class marketServer implements Runnable {
                                                  * **/
                                                 case 5 :    //5. Remove product
                                                     readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     for (Products products : currentStore.getGoods()) {
                                                         oos.writeObject(products);
                                                         oos.flush();
@@ -1223,14 +1219,8 @@ public class marketServer implements Runnable {
                                                     oos.writeObject("END");
                                                     oos.flush();
                                                     if (!currentStore.getGoods().isEmpty()) {
-                                                        int index = Integer.parseInt(reader.readLine());
-                                                        if (index == -1) {
-                                                            break;
-                                                        }
-                                                        int sureDelete = Integer.parseInt(reader.readLine());
-                                                        if (sureDelete == 0) {
-                                                            currentStore.getGoods().remove(index);
-                                                        }
+                                                        Integer index = Integer.parseInt(reader.readLine()) - 1;
+                                                        currentStore.getGoods().remove(index);
                                                     }
                                                     sellersList.set(indexUser,current);
                                                     writeFile();
@@ -1245,15 +1235,7 @@ public class marketServer implements Runnable {
                                                  * 2. END
                                                  * **/
                                                 case 6 :    //6. Import product csv file
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
                                                     try {
-                                                        String cancel = reader.readLine();
-                                                        if (cancel.equals("CANCEL")) {
-                                                            writeFile();
-                                                            break;
-                                                        }
                                                         File file = (File) ois.readObject();
                                                         currentStore.importProducts(file);
                                                         writer.println("YUP");
@@ -1266,8 +1248,6 @@ public class marketServer implements Runnable {
                                                     for (Products product : currentStore.goods){
                                                         System.out.println(product.toString());
                                                     }
-                                                    current.getStore().set(storeInt,currentStore);
-                                                    sellersList.set(indexUser,current);
                                                     writeFile();
                                                     break;
                                                 //expects:
@@ -1281,26 +1261,8 @@ public class marketServer implements Runnable {
                                                  * else : ERROR
                                                  * **/
                                                 case 7 :    //7. Export product csv file
-                                                    readFile();
-                                                    current = readFileRefresh(current);
-                                                    currentStore = current.getStore().get(storeInt);
-                                                    try {
-                                                        for (Products p : currentStore.goods) {
-                                                            oos.writeObject(p);
-                                                            oos.flush();
-                                                        }
-                                                        oos.writeObject("END");
-                                                        oos.flush();
-                                                        writer.println("YUP");
-                                                        writer.flush();
-                                                    } catch (Exception exc){
-                                                        exc.printStackTrace();
-                                                        writer.println("NO");
-                                                        writer.flush();
-                                                    }
-                                                    current.getStore().set(storeInt,currentStore);
-                                                    sellersList.set(indexUser,current);
-                                                    writeFile();
+                                                    oos.writeObject(currentStore);
+                                                    oos.flush();
                                                     break;
                                                 //expects
                                                 /**
@@ -1313,12 +1275,12 @@ public class marketServer implements Runnable {
                                                  * **/
                                                 case 8 :    //8. Go back
                                                     boothmenu = false;
+                                                    mainmenu = true;
+                                                    System.out.println("Out of booth");
                                                     break;
                                             }
                                         } while(boothmenu);
                                     case 2: //2. Add booth
-                                        readFile();
-                                        current = readFileRefresh(current);
                                         String storeName = reader.readLine();
                                         current.addStore(new Store(storeName, current.getName(), current.getEmail()));
                                         sellersList.set(indexUser,current);
@@ -1326,8 +1288,6 @@ public class marketServer implements Runnable {
                                         break;
                                     //expects: a store name(String)
                                     case 3: //3. Edit booth
-                                        readFile();
-                                        current = readFileRefresh(current);
                                         if (current.getStore().isEmpty()) {
                                             writer.println("EMPTY");
                                             writer.flush();
@@ -1335,8 +1295,10 @@ public class marketServer implements Runnable {
                                             writer.println("NOT EMPTY");
                                             writer.flush();
                                             for (Store store : current.getStore()) {
-                                                writer.println(store.getName());
-                                                writer.flush();
+                                                if (!store.getName().equals("Dummy")) {
+                                                    writer.println(store.getName());
+                                                    writer.flush();
+                                                }
                                                 System.out.println(store.getName());
                                             }
                                             writer.println("END");
@@ -1360,20 +1322,23 @@ public class marketServer implements Runnable {
                                      * 3. END for end of stores
                                      * **/
                                     case 4: //4. Remove booth
-                                        readFile();
-                                        current = readFileRefresh(current);
                                         if (!current.getStore().isEmpty()) {
                                             writer.println("NOT EMPTY");
                                             writer.flush();
                                             for (Store store : current.getStore()) {
-                                                writer.println(store.getName());
+                                                if (!store.getName().equals("Dummy")) {
+                                                    writer.println(store.getName());
+                                                    writer.flush();
+                                                }
                                             }
-                                            oos.writeObject("END");
-                                            oos.flush();
+                                            writer.println("END");
+                                            writer.flush();
                                             int index = Integer.parseInt(reader.readLine()) - 1;
-                                            ArrayList<Store> newList = current.getStore();
-                                            newList.remove(index);
-                                            current.setStore(newList);
+                                            if (index != -2) {
+                                                ArrayList<Store> newList = current.getStore();
+                                                newList.remove(index);
+                                                current.setStore(newList);
+                                            }
                                         } else {
                                             writer.println("EMPTY");
                                             writer.flush();
@@ -1394,7 +1359,9 @@ public class marketServer implements Runnable {
                                      * **/
                                     case 5: //5. Go back
                                         marketMenu = false;
+                                        System.out.println("Back to main");
                                         break;
+
                                 }
                             } while(marketMenu);
                             break;
@@ -1429,15 +1396,5 @@ public class marketServer implements Runnable {
             }
         }
         return emailExists;
-    }
-    public static Seller readFileRefresh(Seller currentSeller) {
-        for (User seller : sellersList) {
-            Seller sellerListed = (Seller) seller;
-            if (sellerListed.getEmail().equals(currentSeller.getEmail()) && sellerListed.getPassword().equals(currentSeller.getPassword())) {
-                currentSeller = sellerListed;
-                break;
-            }
-        }
-        return (currentSeller);
     }
 }
