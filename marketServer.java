@@ -564,6 +564,7 @@ public class marketServer implements Runnable {
                                                     if (productOfChoice.getQuantity() >= quantity) {
                                                         productsList.get(productIndex).setQuantity(productOfChoice.getQuantity() - quantity);
                                                         productsList.get(productIndex).setSales(productOfChoice.getSales() + quantity);
+                                                        customerListRefresh(productOfChoice, current);
                                                         current.addProducts(productOfChoice.getName(), quantity);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
@@ -645,6 +646,7 @@ public class marketServer implements Runnable {
                                                                     if (product.getQuantity() >= quantity) {
                                                                         searchResults.get(searchIndex - 1).setQuantity(product.getQuantity() - quantity);
                                                                         searchResults.get(searchIndex - 1).setSales(product.getSales() + quantity);
+                                                                        customerListRefresh(product, current);
                                                                         writer.println("SUCCESS");  //is in stock
                                                                         writer.flush();
                                                                         break;
@@ -763,6 +765,7 @@ public class marketServer implements Runnable {
                                                         productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
                                                         productsList.get(prodIndex).setSales(productOfChoice.getSales() + quantity);
                                                         current.addProducts(productOfChoice.getName(), quantity);
+                                                        customerListRefresh(productOfChoice, current);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
                                                         writeFile();
@@ -847,6 +850,7 @@ public class marketServer implements Runnable {
                                                         productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
                                                         productsList.get(prodIndex).setSales(productOfChoice.getSales() + quantity);
                                                         current.addProducts(productOfChoice.getName(), quantity);
+                                                        customerListRefresh(productOfChoice, current);
                                                         writer.println("SUCCESS");
                                                         writer.flush();
                                                     } else {
@@ -935,6 +939,8 @@ public class marketServer implements Runnable {
                                                                     if (prod.getName().equals(cartItem.getName())) {
                                                                         prod.setQuantity((prod.getQuantity() - 1));
                                                                         prod.setSales(prod.getSales() + 1);
+                                                                        customerListRefresh(cartItem, current);
+                                                                        break;
                                                                     }
                                                                 }
                                                             } else {
@@ -1409,5 +1415,26 @@ public class marketServer implements Runnable {
             }
         }
         return (currentSeller);
+    }
+    
+    public static void customerListRefresh(Products productOfchoice, Customer currentUser) {
+        boolean isPresent = false;
+        for (User seller : sellersList) {
+            Seller sellerListed = (Seller) seller;
+            for (Store store : sellerListed.getStore()) {
+                if (store.getName().equals(productOfchoice)) {
+                    for (Customer customerListed : store.getCustomers()) {
+                        if (customerListed.getEmail().equals(currentUser.getEmail())) {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                    if (!isPresent) {
+                        store.getCustomers().add(currentUser);
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
