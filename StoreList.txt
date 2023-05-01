@@ -1,0 +1,91 @@
+Theresa's Orange Grove
+theresa.h@hotmail.com,Theresa
+13.0
+149
+CUSTOMERLIST
+Amanda,mandy@gmail.com
+Elliot,eb.student@purdue.edu
+--------
+PRODUCTSLIST
+Orange;;4.00;;14;;Freshly grown, perfect for a summer day;;17;;38
+Orange Juice;;5.00;;8;;Fresh-squeezed goodness;;100;;13
+Orange Blossom Lotion;;15.00;;30;;Good for dry, cracked skin;;100;;13
+Orange-print T-Shirt;;20.00;;26;;Screen printed and designed by local artists;;44;;12
+--------
+Sydney's Produce
+sydneythefarmer@gmail.com,Sydney
+18.0
+23
+CUSTOMERLIST
+Amanda,mandy@gmail.com
+Elliot,eb.student@purdue.edu
+Felicity,catluvr@gmail.com
+Bryan,bry.alv@outlook.com
+--------
+PRODUCTSLIST
+Strawberries;;5.00;;23;;One gallon of Sydney's finest freshly-picked berries;;12;;15
+Rhubarb;;12.00;;8;;Tart and bright, the perfect addition to any summer pie;;100;;13
+Cherry Tomatoes;;4.00;;24;;Tiny versions of big tomatoes, but just as good;;10;;43
+Carrots;;3.00;;13;;They may not help with your eyesight, but they sure do taste good;;44;;12
+Blueberries;;6.00;;8;;Put them in pancakes for a special treat;;45;;24
+--------
+Jerry's Coffee
+eloise@hotmail.com,Eloise
+24.99
+100
+PRODUCTSLIST
+Cup o' Joe;;3.50;;97;;Your average cup of coffee;;18;;15
+Latte;;3.75;;31;;Espresso with steamed milk;;20;;15
+--------
+Eloise's Bakery
+eloise@hotmail.com,Eloise
+18.0
+23
+CUSTOMERLIST
+Amanda,mandy@gmail.com
+Elliot,eb.student@purdue.edu
+Felicity,catluvr@gmail.com
+Bryan,bry.alv@outlook.com
+--------
+PRODUCTSLIST
+Strawberry Rhubarb Pie;;5.00;;12;;One slice of perfectly tart-sweet pie;;12;;15
+Blueberry Scone;;4.00;;8;;Scone with fresh blueberries;;100;;13
+Chocolate Chip Cookie;;3.45;;19;;Freshly-baked with chocolate chips;;12;;45
+--------
+Pete's Farm
+pete@purdue.edu,Purdue Pete
+13.0
+149
+CUSTOMERLIST
+Sofia,team2@gmail.com
+--------
+PRODUCTSLIST
+Ear of Corn;;12.00;;80;;Not GMO and freshly picked;;40;;165
+Apple;;6.99;;12;;Stolen from the dining court;;31;;2
+Pumpkin;;3.00;;4;;It's literally a pumpkin;;0;;0
+--------
+Peter's Donut Cart
+pete@purdue.edu,Purdue Pete
+0.0
+0
+PRODUCTSLIST
+Plain Donut;;3.99;;27;;Plain donut with a frosted sugar coating;;3;;0
+Chocolate Donut;;4.29;;24;;A delicious donut with chocolate frosting and sprinkles;;6;;2
+Bagel and Cream Cheese;;2.79;;39;;Not quite a donut, but it's also round;;1;;0
+--------
+BoilerMaker Acres
+extraSpecial@purdue.edu,Honk
+45.0
+67
+PRODUCTSLIST
+Dew Honey;;6.99;;25;;Honey from morning dew, collected only on Purdue's beautiful campus ground;;0;;0
+Maple Syrup;;4.00;;14;;Mapley and syrupey and fresh from Vermont;;0;;0
+Train Track Crackers;;4.99;;50;;Join Purdue Boilermakers with Train Track Crackers! May contain nuts and other ingredients that may cause allergic reaction. Please check further information regarding allergens on the box description.;;0;;0
+--------
+Father Daniel's Ranch
+ddaniels@purdue.edu,Mitch Daniels
+99.99
+1000
+PRODUCTSLIST
+Box of Wheat;;190.99;;87;;Harvested fall, 2022;;28;;53
+--------
