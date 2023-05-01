@@ -254,29 +254,32 @@ public class marketServer implements Runnable {
             FileWriter fileWriter = new FileWriter(storeFile, false);
             PrintWriter printWriter = new PrintWriter(fileWriter);
 
-            for (Store store : storesList) {
-                printWriter.println(store.getName());
-                printWriter.println(store.getSellerEmail() + "," + store.getSellerName());
-                printWriter.println(store.getRevenue());
-                printWriter.println(store.getSales());
-                if (!store.getCustomers().isEmpty()) {
-                    printWriter.println("CUSTOMERLIST");
-                    for (Customer customer : store.getCustomers()) {
-                        printWriter.println(customer.getName() + "," + customer.getEmail());
+            for (User seller : sellersList) {
+                Seller currentSeller = (Seller) seller;
+                for (Store store : currentSeller.getStore()) {
+                    printWriter.println(store.getName());
+                    printWriter.println(store.getSellerEmail() + "," + store.getSellerName());
+                    printWriter.println(store.getRevenue());
+                    printWriter.println(store.getSales());
+                    if (!store.getCustomers().isEmpty()) {
+                        printWriter.println("CUSTOMERLIST");
+                        for (Customer customer : store.getCustomers()) {
+                            printWriter.println(customer.getName() + "," + customer.getEmail());
+                        }
+                        printWriter.println("--------");
                     }
-                    printWriter.println("--------");
-                }
-                if (!store.getGoods().isEmpty()) {
-                    printWriter.println("PRODUCTSLIST");
-                    for (Products product : store.getGoods()) {
-                        printWriter.printf("%s;;%.2f;;%d;;%s;;%d;;%d\n", product.getName(), product.getPrice(),
-                                product.getQuantity(), product.getDescription(), product.getSales(),
-                                product.getInShoppingCart());
+                    if (!store.getGoods().isEmpty()) {
+                        printWriter.println("PRODUCTSLIST");
+                        for (Products product : store.getGoods()) {
+                            printWriter.printf("%s;;%.2f;;%d;;%s;;%d;;%d\n", product.getName(), product.getPrice(),
+                                    product.getQuantity(), product.getDescription(), product.getSales(),
+                                    product.getInShoppingCart());
+                        }
+                        printWriter.println("--------");
                     }
-                    printWriter.println("--------");
-                }
-                if (store.getCustomers().isEmpty() && store.getGoods().isEmpty()) {
-                    printWriter.println("--------");
+                    if (store.getCustomers().isEmpty() && store.getGoods().isEmpty()) {
+                        printWriter.println("--------");
+                    }
                 }
             }
             printWriter.close();
