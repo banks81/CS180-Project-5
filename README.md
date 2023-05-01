@@ -9,7 +9,7 @@ To compile our project, ensure you have all necessary files: marketServer.java, 
 ## Submission Details
 
 Alexander Neff - Submitted Report on Brightspace. 
-Aaron Banks - Submitted Vocareum workspace.
+Sofia Hughes - Submitted Vocareum workspace.
 Aaron Banks - Submitted Presentation on Brightspace.
 
 
