@@ -16,7 +16,7 @@ Aaron Banks - Submitted Vocareum workspace.
 
 ### marketServer
 
-The marketServer class contains the main method which creates a new server thread when a new connection with a client is established. Within the run method of the server thread, the program communicates with the client to first verify provided account data with existing data read from the UserList.txt file. The data, or an error message if applicable, is sent back to the client. It should be noted that all data is stored server-side and is sent to the client when appropriate. 
+The marketServer class contains the main method which creates a new server thread when a new connection with a client is established. Within the run method of the server thread, the program communicates with the client to first verify provided account data with existing data read from the UserList.txt file. The data, or an error message if applicable, is sent back to the client. It should be noted that all data is stored server-side and is sent to the client when appropriate. Once the server knows if the active client is a customer or a seller, it handles requests from the user and any necessary data appropriately.
 
 
 ### marketClientGUI
