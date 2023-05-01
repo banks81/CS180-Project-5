@@ -257,6 +257,9 @@ public class marketServer implements Runnable {
             for (User seller : sellersList) {
                 Seller currentSeller = (Seller) seller;
                 for (Store store : currentSeller.getStore()) {
+                    if (store.getName().equals("DUMMY")) {
+                        break;
+                    }
                     printWriter.println(store.getName());
                     printWriter.println(store.getSellerEmail() + "," + store.getSellerName());
                     printWriter.println(store.getRevenue());
