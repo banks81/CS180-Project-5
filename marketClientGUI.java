@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -418,7 +417,7 @@ public class marketClientGUI implements Runnable {
                 //TODO implement creating an account with JOptionPane
                 String [] dialogButtons = {"Seller", "Customer"};
                 int type = JOptionPane.showOptionDialog(null, "Welcome new user!\nAre you a seller or customer?", "Create Account",
-                            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogButtons, dialogButtons[0]);
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogButtons, dialogButtons[0]);
                 if (type != 0 && type != 1) {
                     endProgram();
                     return;
@@ -835,6 +834,8 @@ public class marketClientGUI implements Runnable {
                         pastPurchaseString += j + ". " + pastPurchases.get(i) + "\n";
                     }
                     JOptionPane.showMessageDialog(null, pastPurchaseString, "Past Purchases", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(null, "You have no purchase history!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
 
 
@@ -1012,8 +1013,8 @@ public class marketClientGUI implements Runnable {
                 listingsWindow.setVisible(true);
                 productsWindow.setVisible(false);
 
-                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest price!\n" +
-                        "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest price!"
+                        , "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
             }
 
         });
@@ -1053,8 +1054,7 @@ public class marketClientGUI implements Runnable {
                 listingsWindow.setVisible(true);
                 productsWindow.setVisible(false);
 
-                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest availability!\n" +
-                        "Check the listings to view the new order.", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Products have been sorted from lowest to highest availability!", "Product Sorting", JOptionPane.INFORMATION_MESSAGE);
 
             }
         });
@@ -1064,11 +1064,12 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("1"); //view booths
                 writer.flush();
+
+                //Read in store names
                 ArrayList<String> storeNames = new ArrayList<>();
                 String[] storeNamesArr;
                 int searchIndexInt = 0;
                 try {
-                    //Read in store names
                     do {
                         String storeName = reader.readLine();
                         if (storeName.equals("END")) {
@@ -1077,7 +1078,6 @@ public class marketClientGUI implements Runnable {
                         System.out.println(storeName);
                         storeNames.add(storeName);
                     } while (true);
-                   
                     storeNamesArr = new String[storeNames.size()];
 
                     for (int i = 0; i < storeNames.size(); i++) {
@@ -1085,17 +1085,17 @@ public class marketClientGUI implements Runnable {
                         String tempStoreName = storeNames.get(i);
                         storeNamesArr[i] = j + ". " + tempStoreName;
                     }
-                    
+
                     //Check if any stores were read
                     String emptyStores = reader.readLine();
                     if (emptyStores.equals("NO STORES")) {
+                        JOptionPane.showMessageDialog(null, "You don't have any registered booths!", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-                    
+
                     //Ask user which store they choose
                     String searchIndex = (String) JOptionPane.showInputDialog(null, "Which booth would you like to view?",
                             "Store List", JOptionPane.QUESTION_MESSAGE, null, storeNamesArr, storeNamesArr[0]);
-
                     try {
                         searchIndexInt = Integer.parseInt(searchIndex.substring(0, 1)) - 1;
                     }   catch (NumberFormatException e1 ) {
@@ -1103,6 +1103,7 @@ public class marketClientGUI implements Runnable {
                     }
                     System.out.println(searchIndexInt);
                     System.out.println(searchIndex);
+
                     writer.println(searchIndexInt);
                     writer.flush();
 
@@ -1177,6 +1178,8 @@ public class marketClientGUI implements Runnable {
                         }
                         writer.flush();
                         JOptionPane.showMessageDialog(null, "Booth name successfully changed!", "Edit booth", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "You don't have any booths to edit!", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception exception) {}
             }
@@ -1604,49 +1607,78 @@ public class marketClientGUI implements Runnable {
 
             }
         });
-        exportProduct.addActionListener(new ActionListener() {
-            @Override
+
+        removeBooth.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                writer.println("7");
+                writer.println("4");
                 writer.flush();
-                System.out.println("export csv test");
-                String csvFileName = JOptionPane.showInputDialog(null, "Enter the csv file name: ", "Import Product CSV"
-                        , JOptionPane.INFORMATION_MESSAGE);
-                File file = new File(csvFileName);
-                ArrayList<Products> productCSV = new ArrayList<>();
-                while (true){
-                    try {
-                        if (ois.readObject().equals("END")){
-                            break;
-                        }
-                        Products good = (Products) ois.readObject();
-                        productCSV.add(good);
-                    } catch (Exception exc){
-                        exc.printStackTrace();
-                    }
-                }
+
                 try {
-                    FileWriter fw = new FileWriter(file);
-                    BufferedWriter bfw = new BufferedWriter(fw);
-                    for (Products good : productCSV) {
-                        bfw.write(good.getName() + "," + good.getPrice() + "," + good.getQuantity() + "," + good.getDescription() +
-                                "," + good.getSales() + "," + good.getStoreName() + "\n");
-                    }
-                    bfw.close();
-                } catch (IOException exc) {
-                    exc.printStackTrace();
-                }
-                try {
-                    String passFail = reader.readLine();
-                    if (passFail.equals("YUP")){
-                        JOptionPane.showMessageDialog(null, "Products successfully imported!", "Import Success"
-                                , JOptionPane.INFORMATION_MESSAGE);
+                    String response = reader.readLine();
+                    ArrayList<String> storeNames = new ArrayList<>();
+                    if (response.equals("EMPTY")) {
+                        JOptionPane.showMessageDialog(null, "You have no booth to remove.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error! Failed to import products", "Import Fail",
-                                JOptionPane.ERROR_MESSAGE);
+                        do {
+                            String storeName = reader.readLine();
+                            if (storeName.equals("END")) {
+                                break;
+                            } else {
+                                storeNames.add(storeName);
+                            }
+                        } while (true);
+                        String[] removeBoothArr = new String[storeNames.size()];
+                        for (int i = 0; i < storeNames.size(); i++) {
+                            int j = i + 1;
+                            removeBoothArr[i] = j + ". " + storeNames.get(i);
+                        }
+                        String removeChoice = null;
+                        if (removeBoothArr != null && removeBoothArr.length > 0) {
+                            removeChoice = (String) JOptionPane.showInputDialog(null, "Which item would you like to remove?"
+                                    , "Remove Item", JOptionPane.PLAIN_MESSAGE, null, removeBoothArr, removeBoothArr[0]);
+                            System.out.println(removeChoice);
+                        }
+                        if (removeChoice != null) {
+                            try {
+                                int indexNo = Integer.parseInt(removeChoice.substring(0, 1));
+                                if (indexNo <= removeChoice.length() && indexNo > 0) {
+                                    writer.println(indexNo);
+                                    writer.flush();
+                                    System.out.println("printed " + indexNo + " to server");
+                                    JOptionPane.showMessageDialog(null, "Your booth was removed!", "Booth Update",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    writer.println("CANCEL REMOVE");
+                                    writer.flush();
+                                    System.out.println("printed cancel remove to server");
+                                    JOptionPane.showMessageDialog(null, "Your booth was not removed!", "Cart Update",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                                }
+
+                            } catch (Exception e1) {
+                                JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
+                                writer.println("-1");
+                                writer.flush();
+                                System.out.println("printed -1 in exception catch to server");
+                                e1.printStackTrace();
+                                JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        } else {
+                            writer.println("-1");
+                            writer.flush();
+                            System.out.println("removeChoice was null");
+                            JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        }
+
+
+
                     }
-                } catch (Exception w){
-                    w.printStackTrace();
+
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
 
             }
@@ -1693,7 +1725,7 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("8");
                 writer.flush();
-                writer.println("2");
+                writer.println("Dummy");
                 writer.flush();
                 boothWindow.setVisible(false);
                 sellerWindow.setVisible(true);
@@ -1702,10 +1734,8 @@ public class marketClientGUI implements Runnable {
 
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (userType == 1) {
-                    writer.println("3");
-                    writer.flush();
-                }
+                writer.println("3");
+                writer.flush();
                 endProgram();
             }
         });
