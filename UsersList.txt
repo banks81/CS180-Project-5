@@ -1,0 +1,78 @@
+Customer,alyssacollins@gmail.com,alyssa,mydog32
+PAST PURCHASE
+Parsnip Soup,1
+Olive Oil,2
+Orange,3
+Hot Sauce,1
+Asparagus,1
+Latte,1
+Orange,1
+Orange,1
+Orange,3
+--------
+SHOPPING CART
+Orange,Theresa's Orange Grove,1
+--------
+Customer,meganhawk@gmail.com,Megan,birdsRcool2
+PAST PURCHASE
+Orange Juice,1
+Strawberries,2
+Rhubarb,3
+Carrots,2
+Blueberries,1
+--------
+Customer,email2,name2,password2
+--------
+Customer,eb.student@purdue.edu,Elliot,passwordforreal
+PAST PURCHASE
+Cup o' Joe,7
+Cherry Tomatoes,2
+--------
+Customer,catluvr@gmail.com,Felicity,secretpassword135
+--------
+Customer,bry.alv@outlook.com,Bryan,BryansSecretCode
+PAST PURCHASE
+Strawberry Rhubarb Pie,1
+--------
+Customer,mandy@gmail.com,Amanda,password4245
+PAST PURCHASE
+Blueberry Scone,12
+--------
+Customer,cvr@purdue.edu,Claude,goDeer
+PAST PURCHASE
+Corn,4
+Box of wheat,1
+Apple,10
+Chocolate Donut,4
+Bagel and Cream Cheese,9
+Chocolate Donut,5
+Plain Donut,3
+--------
+Customer,team1@gmail.com,Aaron,goFinals
+PAST PURCHASE
+Box of Wheat,4
+Box of Wheat,10
+--------
+Customer,team2@gmail.com,Sofia,farmersRule
+--------
+Customer,team3@purdue.edu,Neff,javaKeys
+--------
+Customer,team4@purdue.edu,Minh,summerBreakPlease
+PAST PURCHASE
+Corn,10
+Apple,1
+Chocolate Donut,1
+Bagel and Cream Cheese,1
+--------
+Seller,eloise@hotmail.com,Eloise,paul.123
+--------
+Seller,sydneythefarmer@gmail.com,Sydney,ilovecarrots3
+--------
+Seller,theresa.h@hotmail.com,Theresa,password!
+--------
+Seller,pete@purdue.edu,Purdue Pete,peteFarmer
+--------
+Seller,extraSpecial@purdue.edu,Honk,expressTrain2023
+--------
+Seller,ddaniels@purdue.edu,Mitch Daniels,boilerUpHammerD0wn
+--------
