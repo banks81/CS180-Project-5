@@ -1,0 +1,42 @@
+Pete's Farm
+pete@purdue.edu,Purdue Pete
+13.0
+149
+CUSTOMERLIST
+Sofia,team2@gmail.com
+--------
+PRODUCTSLIST
+corn;;12.00;;990;;not GMO, freshly picked;;40;;165
+apple;;6.99;;999;;from dinning court;;31;;2
+Pumpkin;;0.00;;0;;Description;;0;;0
+--------
+Pete's donut cart
+pete@purdue.edu,Purdue Pete
+0.0
+0
+PRODUCTSLIST
+Plain Donut;;3.99;;27;;Plain donut with sugar coating;;3;;0
+Chocolate Donut;;4.29;;24;;Donut with chocolate frosting and sprinkles;;6;;2
+Bagel and cream cheese;;2.79;;39;;Whole wheat bagel with cream cheese spread;;1;;0
+--------
+1
+pete@purdue.edu,Purdue Pete
+0.0
+0
+--------
+BoilerMaker Acres
+extraSpecial@purdue.edu,Honk
+45.0
+67
+PRODUCTSLIST
+Dew honey;;6.99;;25;;Honey from morning dew, collected only on Campus ground;;0;;0
+Maple syrup;;0.00;;0;;Description;;0;;0
+Train track crackers;;4.99;;50;;Join Purdue boilermakers with Train track Crackers! May contain nuts and other ingredients that may cause allergic reaction. Please check further information regarding allergens on the box description.;;0;;0
+--------
+Daddy Daniel's Ranch
+ddaniels@purdue.edu,Mitch Daniels
+99.99
+1000
+PRODUCTSLIST
+box of wheat;;190.99;;87;;harvested 2022 fall;;28;;53
+--------
