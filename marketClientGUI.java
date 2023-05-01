@@ -129,24 +129,17 @@ public class marketClientGUI implements Runnable {
         //Client Connection
         try {
             socket = new Socket("localhost", 4242);
-            System.out.println("got past socket");
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("reader");
             writer = new PrintWriter(socket.getOutputStream());
-            System.out.println("writer");
             oos = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println("reached end of socket stuff");
             oos.flush();
             ois = new ObjectInputStream(socket.getInputStream());
-            System.out.println("ois");
 
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("IO Exception");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Classnotfoundexception");
         }
 
         //WELCOME MENU SETUP
@@ -443,7 +436,6 @@ public class marketClientGUI implements Runnable {
                             String [] errorDialogButtons = {"Try again", "Quit"};
                             emailFail = JOptionPane.showOptionDialog(null, "This email is already in use.", "Error",
                                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, errorDialogButtons, errorDialogButtons[0]);
-                            System.out.println(emailFail);
                             if(emailFail == 1) {
                                 writer.println("NO"); //would you like to re enter email? no
                                 writer.flush();
@@ -521,11 +513,9 @@ public class marketClientGUI implements Runnable {
                 //TODO: update server with new name info
                 writer.println("1");
                 writer.flush();
-                System.out.println("sent 1 to server");
                 String name = nameField.getText();
                 writer.println(name);
                 writer.flush();
-                System.out.println("sent " + name + "to server");
 
                 JOptionPane.showMessageDialog(null, "Your name has been changed to " + name, "Change Success!", JOptionPane.INFORMATION_MESSAGE);
                 accountWindow.setVisible(false);
@@ -608,18 +598,13 @@ public class marketClientGUI implements Runnable {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         productsList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
                 } while (true);
 
-                for(int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i));
-                }
 
                 for(int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i).getName() + " is in dropdown");
                     productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
                 }
 
@@ -636,7 +621,6 @@ public class marketClientGUI implements Runnable {
                 writer.println(selectedProductIndex);
                 writer.flush();
                 String [] productDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
-                System.out.println(productsList.get(selectedProductIndex).getQuantity());
                 int productAction = JOptionPane.showOptionDialog(null, productsList.get(selectedProductIndex).toString(), "Product Description",
                         JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, productDialogButtons, productDialogButtons[0]);
                 writer.println(productAction);
@@ -682,7 +666,6 @@ public class marketClientGUI implements Runnable {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         shoppingTemp.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
@@ -726,9 +709,7 @@ public class marketClientGUI implements Runnable {
                                 } catch (IOException ex) {
                                     break;
                                 }
-                                System.out.println(success);
                             } while (true);
-                            System.out.println("IM OUT");
                             if (failuresArr.isEmpty()) {
                                 JOptionPane.showMessageDialog(null, "Your cart has been successfully purchased!",
                                         "Cart Confirmation", JOptionPane.INFORMATION_MESSAGE);
@@ -760,13 +741,11 @@ public class marketClientGUI implements Runnable {
                                     if (indexNo <= removeChoice.length() && indexNo > 0) {
                                         writer.println(indexNo);
                                         writer.flush();
-                                        System.out.println("printed index to server");
                                         JOptionPane.showMessageDialog(null, "Your cart was updated!", "Cart Update",
                                                 JOptionPane.INFORMATION_MESSAGE);
                                     } else {
                                         writer.println("CANCEL REMOVE");
                                         writer.flush();
-                                        System.out.println("printed cancel remove to server");
                                         JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
                                                 JOptionPane.INFORMATION_MESSAGE);
                                     }
@@ -775,7 +754,6 @@ public class marketClientGUI implements Runnable {
                                     JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
                                     writer.println("-1");
                                     writer.flush();
-                                    System.out.println("printed -1 in exception catch to server");
                                     e1.printStackTrace();
                                     JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
                                             JOptionPane.INFORMATION_MESSAGE);
@@ -783,7 +761,6 @@ public class marketClientGUI implements Runnable {
                             } else {
                                 writer.println("-1");
                                 writer.flush();
-                                System.out.println("removeChoice was null");
                                 JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
                                         JOptionPane.INFORMATION_MESSAGE);
                             }
@@ -853,7 +830,6 @@ public class marketClientGUI implements Runnable {
                 try {
                     ArrayList<String> searchResults = new ArrayList<>();
                     String firstMessage = reader.readLine();
-                    System.out.println(firstMessage);
                     if (!firstMessage.equals("NO SEARCH RESULTS")) { //Results for this search exist
                         searchResults.add(firstMessage);
                         firstMessage = reader.readLine();
@@ -879,7 +855,6 @@ public class marketClientGUI implements Runnable {
                                 searchIndexInt = Integer.parseInt(searchIndex.substring(0, 1));
                             } catch (Exception e1) {
                                 searchIndexInt = searchResults.size() + 1; //if there's a numberFormatException it just cancels
-                                System.out.println("Error with selection of search product");
                             }
                         }
                         writer.println(searchIndexInt); //sends search index to server
@@ -894,7 +869,6 @@ public class marketClientGUI implements Runnable {
                             String [] searchDialogButtons = {"Purchase Now", "Add One to Cart", "Cancel"};
                             int productAction = JOptionPane.showOptionDialog(null, product.toString(), "Product Description",
                                     JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, searchDialogButtons, searchDialogButtons[0]);
-                            System.out.println(productAction);
                             /**
                              * 1. add to shopping cart
                              * 2. buy now
@@ -902,19 +876,15 @@ public class marketClientGUI implements Runnable {
                              */
                             switch (productAction) {
                                 case 0: //purchase now
-                                    System.out.println("case 0: purchase now");
                                     writer.println("2"); //this is what the number is in the server
                                     writer.flush();
-                                    System.out.println("sent 2 to the server");
                                     int quantity = -1;
                                     do {
                                         try {
                                             quantity = Integer.parseInt(JOptionPane.showInputDialog(null,
                                                     "How many would you like to purchase?", "Order Form",
                                                     JOptionPane.QUESTION_MESSAGE));
-                                            System.out.println(quantity);
                                             if (quantity > 0) {
-                                                System.out.println(quantity);
                                                 break;
                                             }
                                         } catch (Exception e1) {
@@ -938,7 +908,6 @@ public class marketClientGUI implements Runnable {
                                 case 1: //add one to cart
                                     writer.println("1"); //this is the number in the server for add to cart
                                     writer.flush();
-                                    System.out.println("sent 1 to the server, adding one to the cart");
                                     String success = reader.readLine();
                                     if (success.equals("SUCCESS")) {
                                         JOptionPane.showMessageDialog(null, "Added to cart!",
@@ -995,18 +964,13 @@ public class marketClientGUI implements Runnable {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         productsList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
                 } while (true);
 
-                for (int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i));
-                }
 
                 for (int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i).getName() + " is in dropdown");
                     productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
                 }
 
@@ -1036,18 +1000,13 @@ public class marketClientGUI implements Runnable {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         productsList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
                 } while (true);
 
-                for (int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i));
-                }
 
                 for (int i = 0; i < productsList.size(); i++) {
-                    System.out.println(productsList.get(i).getName() + " is in dropdown");
                     productsDropdown.addItem(productsList.get(i).getName() + " from " + productsList.get(i).getStoreName() + " ($" + productsList.get(i).getPrice() + ")");
                 }
 
@@ -1075,7 +1034,6 @@ public class marketClientGUI implements Runnable {
                         if (storeName.equals("END")) {
                             break;
                         }
-                        System.out.println(storeName);
                         storeNames.add(storeName);
                     } while (true);
                     storeNamesArr = new String[storeNames.size()];
@@ -1101,8 +1059,6 @@ public class marketClientGUI implements Runnable {
                     }   catch (NumberFormatException e1 ) {
                         searchIndexInt = -1;
                     }
-                    System.out.println(searchIndexInt);
-                    System.out.println(searchIndex);
 
                     writer.println(searchIndexInt);
                     writer.flush();
@@ -1138,7 +1094,6 @@ public class marketClientGUI implements Runnable {
                 String newStoreName = (String) JOptionPane.showInputDialog(null, "Enter new Store name", "Add booth", JOptionPane.QUESTION_MESSAGE);
                 writer.println(newStoreName);
                 writer.flush();
-                System.out.println(newStoreName + " sent to server");
                 JOptionPane.showMessageDialog(null, "New store " + newStoreName + " made!", "Add booth", JOptionPane.INFORMATION_MESSAGE);
             }
         });
@@ -1211,14 +1166,12 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("1"); //view products
                 writer.flush();
-                System.out.println("viewing products");
                 ArrayList<Products> sellerProductList = new ArrayList<>();
                 String[] sellerProducts;
                 do {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         sellerProductList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
@@ -1229,10 +1182,6 @@ public class marketClientGUI implements Runnable {
                     return;
                 }
 
-
-                for(int i = 0; i < sellerProductList.size(); i++) {
-                    System.out.println(sellerProductList.get(i));
-                }
                 sellerProducts = new String[sellerProductList.size()];
                 for (int i = 0; i < sellerProductList.size(); i++   ) {
                     int j = i + 1;
@@ -1240,7 +1189,6 @@ public class marketClientGUI implements Runnable {
                 }
                 String productToView = (String) JOptionPane.showInputDialog(null, "Which product would you like to view?",
                         "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
-                System.out.println(productToView);
                 int productToViewInt;
                 try {
                     productToViewInt = Integer.parseInt(productToView.substring(0, 1)) - 1;
@@ -1261,14 +1209,12 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e) {
                 writer.println("5");
                 writer.flush();
-                System.out.println("viewing products to remove");
                 ArrayList<Products> sellerProductList = new ArrayList<>();
                 String[] sellerProducts;
                 do {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         sellerProductList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
@@ -1286,7 +1232,6 @@ public class marketClientGUI implements Runnable {
                 String productToView = (String) JOptionPane.showInputDialog(null,
                         "Which product would you like to remove?",
                         "Product List", JOptionPane.QUESTION_MESSAGE, null, sellerProducts, sellerProducts[0]);
-                System.out.println(productToView);
                 int productToViewInt;
                 try {
                     if (productToView == null) {
@@ -1326,7 +1271,6 @@ public class marketClientGUI implements Runnable {
                             "Deletion Message", JOptionPane.ERROR_MESSAGE);
                 }
 
-                System.out.println(decisionThing);
             }
         });
 
@@ -1336,14 +1280,12 @@ public class marketClientGUI implements Runnable {
                 writer.println("4");
                 writer.flush();
                 boolean edited = false;
-                System.out.println("viewing products to edit");
                 ArrayList<Products> sellerProductList = new ArrayList<>();
                 String[] sellerProducts;
                 do {
                     try {
                         Products newProduct = (Products) ois.readObject();
                         sellerProductList.add(newProduct);
-                        System.out.println(newProduct.getName() + " received");
                     } catch (Exception e1) {
                         break;
                     }
@@ -1354,9 +1296,6 @@ public class marketClientGUI implements Runnable {
                     return;
                 }
 
-                for(int i = 0; i < sellerProductList.size(); i++) {
-                    System.out.println(sellerProductList.get(i));
-                }
                 sellerProducts = new String[sellerProductList.size()];
                 for (int i = 0; i < sellerProductList.size(); i++   ) {
                     int j = i + 1;
@@ -1385,7 +1324,6 @@ public class marketClientGUI implements Runnable {
                         "Current Product Name: " + editingProduct.getName() + "\n" +
                                 "Would you like to edit this?",
                         "Edit Name", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
-                System.out.println(decisionThing);
                 if (decisionThing == 0) { //yes
                     try {
                         oos.writeBoolean(true);
@@ -1421,7 +1359,6 @@ public class marketClientGUI implements Runnable {
                         "Current Product Description: " + editingProduct.getDescription() + "\n" +
                                 "Would you like to edit this?",
                         "Edit Description", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
-                System.out.println(decisionThing);
                 if (decisionThing == 0) { //yes
                     try {
                         oos.writeBoolean(true);
@@ -1456,7 +1393,6 @@ public class marketClientGUI implements Runnable {
                         "Current Product Price: " + editingProduct.getPrice() + "\n" +
                                 "Would you like to edit this?",
                         "Edit Price", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
-                System.out.println(decisionThing);
                 double price;
                 if (decisionThing == 0) { //yes
                     try {
@@ -1506,7 +1442,6 @@ public class marketClientGUI implements Runnable {
                         "Current Product Quantity Available: " + editingProduct.getQuantity() + "\n" +
                                 "Would you like to edit this?",
                         "Edit Quantity", JOptionPane.YES_NO_OPTION); //yes: 0, no: 1, cancel: -1
-                System.out.println(decisionThing);
                 int quantity;
                 if (decisionThing == 0) { //yes
                     try {
@@ -1552,7 +1487,6 @@ public class marketClientGUI implements Runnable {
                         ex.printStackTrace();
                     }
                 }
-                System.out.println("done editing product");
                 if (edited) {
                     JOptionPane.showMessageDialog(null, "Product was successfully edited!" +
                                     "\nNew Product Information:\n" +
@@ -1569,7 +1503,6 @@ public class marketClientGUI implements Runnable {
             public void actionPerformed(ActionEvent e){
                 writer.println("6"); //view booths
                 writer.flush();
-                System.out.println("import csv test");
                 String csvFileName = JOptionPane.showInputDialog(null, "Enter the csv file name: ", "Import Product CSV"
                         , JOptionPane.INFORMATION_MESSAGE);
                 if (csvFileName == null || csvFileName.equals("")) {
@@ -1636,7 +1569,6 @@ public class marketClientGUI implements Runnable {
                         if (removeBoothArr != null && removeBoothArr.length > 0) {
                             removeChoice = (String) JOptionPane.showInputDialog(null, "Which item would you like to remove?"
                                     , "Remove Item", JOptionPane.PLAIN_MESSAGE, null, removeBoothArr, removeBoothArr[0]);
-                            System.out.println(removeChoice);
                         }
                         if (removeChoice != null) {
                             try {
@@ -1644,13 +1576,11 @@ public class marketClientGUI implements Runnable {
                                 if (indexNo <= removeChoice.length() && indexNo > 0) {
                                     writer.println(indexNo);
                                     writer.flush();
-                                    System.out.println("printed " + indexNo + " to server");
                                     JOptionPane.showMessageDialog(null, "Your booth was removed!", "Booth Update",
                                             JOptionPane.INFORMATION_MESSAGE);
                                 } else {
                                     writer.println("CANCEL REMOVE");
                                     writer.flush();
-                                    System.out.println("printed cancel remove to server");
                                     JOptionPane.showMessageDialog(null, "Your booth was not removed!", "Cart Update",
                                             JOptionPane.INFORMATION_MESSAGE);
                                 }
@@ -1659,7 +1589,6 @@ public class marketClientGUI implements Runnable {
                                 JOptionPane.showMessageDialog(null, "Error", "Error", JOptionPane.ERROR_MESSAGE);
                                 writer.println("-1");
                                 writer.flush();
-                                System.out.println("printed -1 in exception catch to server");
                                 e1.printStackTrace();
                                 JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
                                         JOptionPane.INFORMATION_MESSAGE);
@@ -1667,7 +1596,6 @@ public class marketClientGUI implements Runnable {
                         } else {
                             writer.println("-1");
                             writer.flush();
-                            System.out.println("removeChoice was null");
                             JOptionPane.showMessageDialog(null, "Nothing was changed!", "Cart Update",
                                     JOptionPane.INFORMATION_MESSAGE);
                         }
@@ -1747,49 +1675,42 @@ public class marketClientGUI implements Runnable {
         //TODO: How to handle information when each of these is closed?
         mainWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 mainWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the button below", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         welcomeWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 JOptionPane.showMessageDialog(null, "See you next time!", "Bye!", JOptionPane.INFORMATION_MESSAGE);
                 endProgram();
             }
         });
         accountWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 accountWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         productsWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 productsWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         listingsWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 listingsWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         sellerWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 sellerWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         boothWindow.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                System.out.println("CLOSED");
                 boothWindow.setVisible(true);
                 JOptionPane.showMessageDialog(null, "You must quit the program using the Quit Program button on the previous screen", "Error", JOptionPane.ERROR_MESSAGE);
             }
