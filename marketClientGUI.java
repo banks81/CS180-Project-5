@@ -418,7 +418,11 @@ public class marketClientGUI implements Runnable {
                 //TODO implement creating an account with JOptionPane
                 String [] dialogButtons = {"Seller", "Customer"};
                 int type = JOptionPane.showOptionDialog(null, "Welcome new user!\nAre you a seller or customer?", "Create Account",
-                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogButtons, dialogButtons[0]);
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, dialogButtons, dialogButtons[0]);
+                if (type != 0 && type != 1) {
+                    endProgram();
+                    return;
+                }
                 writer.println(type);
                 writer.flush();
                 userType = type;
