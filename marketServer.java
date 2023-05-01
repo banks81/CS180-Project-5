@@ -92,9 +92,9 @@ public class marketServer implements Runnable {
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {
-            System.out.println("File does not exist!");
+            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Invalid file format!");
+            e.printStackTrace();
         }
         File storeList = new File("StoreList.txt");
         try {
@@ -153,9 +153,8 @@ public class marketServer implements Runnable {
                 if (lineNext == null) {
                     if (!currentStore.getName().equals("Dummy")) {
                         storesList.add(currentStore);
-                    } else {
-                        System.out.println("DUMMY DETECTED");
                     }
+
                     currentSeller.addStore(currentStore);
                     break;
                 }
@@ -179,9 +178,9 @@ public class marketServer implements Runnable {
             }
             bufferedReader.close();
         } catch (FileNotFoundException e) {
-            System.out.println("File does not exist!");
+            e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Invalid file format!");
+            e.printStackTrace();
         }
 
         for (int i = 0; i < customersList.size(); i++) {
@@ -292,13 +291,12 @@ public class marketServer implements Runnable {
             }
             printWriter.close();
         } catch (Exception e) {
-            System.out.println("Program terminated.");
+            e.printStackTrace();
         }
         productsList.clear();
     }
     public static void main(String[] args) throws IOException{
         ServerSocket serverSocket = new ServerSocket(4242);
-        System.out.println("Waiting for connection on 4242");
         while (true){
             Socket socket = serverSocket.accept();
             marketServer server = new marketServer(socket);
@@ -307,27 +305,20 @@ public class marketServer implements Runnable {
     }
     public void run() {
         try {
-            System.out.println("accepted");
-            System.out.println("accepted");
             String searchKeyword;
             StringBuilder searchResult = new StringBuilder();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("bufferedreader");
             PrintWriter writer = new PrintWriter(socket.getOutputStream());
-            System.out.println("writer");
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            System.out.println("ois");
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
             oos.flush();
-            System.out.println("got to end of streams");
 
             int indexUser = 0;
 
             readFile();
             User[] currentUser = new User[1];
             if (reader.readLine().equals("EXISTING USER")) {
-                System.out.println("Existing user");
                 boolean userExists = false;
                 do {
                     String email = reader.readLine();
@@ -363,28 +354,23 @@ public class marketServer implements Runnable {
                             writeFile();
                             return;
                         } else {
-                            System.out.println("try again!");
                         }
                     }
                 } while (!userExists);
                 writeFile();
             } else {  //CREATE ACCOUNT
                 //during 'else' statement it reads 'NEW USER'
-                System.out.println("new user");
                 int type = Integer.parseInt(reader.readLine());
                 String name = reader.readLine();
-                System.out.println("Name: " + name);
                 boolean doesEmailExist = false;
                 String checkContinue = null;
                 String email = null;
                 do {
                     email = reader.readLine();
-                    System.out.println("email: " + email);
                     doesEmailExist = doesEmailExist(email);
                     if (doesEmailExist) {
                         writer.println("ERROR");
                         writer.flush();
-                        System.out.println("sent 'ERROR' to server");
 
                         checkContinue = reader.readLine();
 
@@ -397,7 +383,6 @@ public class marketServer implements Runnable {
                             writeFile();
                             return;
                         } else if (checkContinue.equals("CONTINUE")) {
-                            System.out.println("continue");
                             continue;
                         }
                     } else {
@@ -445,7 +430,6 @@ public class marketServer implements Runnable {
                                     case 1:
                                         String name = reader.readLine();
                                         current.setName(name);
-                                        System.out.println("set name to " + name);
                                         editAcc = false;
                                         break;
                                     case 2:
@@ -515,14 +499,12 @@ public class marketServer implements Runnable {
                             do {
                                 readFile();
                                 int menuChoice = Integer.parseInt(reader.readLine());
-                                System.out.println("Option chosen: " + menuChoice);
                                 switch (menuChoice) {
                                     case 1: // VIEW PRODUCTS
                                         readFile();
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
                                             oos.flush();
-                                            System.out.println(product.getName());
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
@@ -536,7 +518,6 @@ public class marketServer implements Runnable {
                                         int productIndex = marketChoice;
                                         readFile();
                                         if (marketChoice <= productsList.size()) {
-                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(productIndex);  //They already have name, storename, description, quantity and price
                                             /**
                                              * 1. add one to cart
@@ -544,22 +525,16 @@ public class marketServer implements Runnable {
                                              * 3. go back to products lists
                                              * **/
                                             marketChoice = Integer.parseInt(reader.readLine());
-                                            System.out.println("Option chosen: " + marketChoice);
                                             readFile();
                                             switch (marketChoice) {
                                                 case 1:
-                                                    System.out.println("add one to cart");
                                                     if (productOfChoice.getQuantity() >= 1) {
                                                         current.addToShoppingCart(productOfChoice, 1);
                                                         productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
-                                                        System.out.println(productOfChoice.getName() + " transaction finished");
                                                     } else {
-                                                        System.out.println("quantity was less than 1, could not add to cart");
-
                                                     }
                                                     break;
                                                 case 0:
-                                                    System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
                                                         productsList.get(productIndex).setQuantity(productOfChoice.getQuantity() - quantity);
@@ -572,10 +547,8 @@ public class marketServer implements Runnable {
                                                         writer.println("ERROR");
                                                         writer.flush();
                                                     }
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                                 default:
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
@@ -617,12 +590,10 @@ public class marketServer implements Runnable {
                                                 for (Products foundProduct : searchResults) {
                                                     writer.println(foundProduct.getName());
                                                     writer.flush();
-                                                    System.out.println(foundProduct.getName());
                                                 }
                                                 writer.println("END");
                                                 writer.flush();
                                                 int searchIndex = Integer.parseInt(reader.readLine());
-                                                System.out.println("Product " + searchIndex);
                                                 do {
                                                     if (searchIndex <= searchResults.size()) {
                                                         Products product = searchResults.get(searchIndex - 1);
@@ -722,7 +693,6 @@ public class marketServer implements Runnable {
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
                                             oos.flush();
-                                            System.out.println(product.getName());
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
@@ -736,7 +706,6 @@ public class marketServer implements Runnable {
                                         marketChoice = Integer.parseInt(listingAction);
                                         readFile();
                                         if (marketChoice <= productsList.size()) {
-                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
                                             int prodIndex = marketChoice;
                                             /**
@@ -745,21 +714,16 @@ public class marketServer implements Runnable {
                                              * 3. go back to products lists
                                              * **/
                                             marketChoice = Integer.parseInt(reader.readLine());
-                                            System.out.println("Option chosen: " + marketChoice);
                                             readFile();
                                             switch (marketChoice) {
                                                 case 1:
-                                                    System.out.println("add one to cart");
                                                     if (productOfChoice.getQuantity() >= 1) {
                                                         current.addToShoppingCart(productOfChoice, 1);
                                                         productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
-                                                        System.out.println(productOfChoice.getName() + " transaction finished");
                                                     } else {
-                                                        System.out.println("quantity was less than 1, could not add to cart");
                                                     }
                                                     break;
                                                 case 0:
-                                                    System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
                                                         productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
@@ -773,10 +737,8 @@ public class marketServer implements Runnable {
                                                         writer.println("ERROR");
                                                         writer.flush();
                                                     }
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                                 default:
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
@@ -808,7 +770,6 @@ public class marketServer implements Runnable {
                                         for (Products product : productsList) {
                                             oos.writeObject(product);
                                             oos.flush();
-                                            System.out.println(product.getName());
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
@@ -820,7 +781,6 @@ public class marketServer implements Runnable {
                                         marketChoice = Integer.parseInt(listingAction);
                                         readFile();
                                         if (marketChoice <= productsList.size()) {
-                                            System.out.println("product chosen: " + productsList.get(marketChoice).getName());
                                             Products productOfChoice = productsList.get(marketChoice);  //They already have name, storename, description, quantity and price
                                             int prodIndex = marketChoice;
                                             /**
@@ -829,22 +789,16 @@ public class marketServer implements Runnable {
                                              * 3. go back to products lists
                                              * **/
                                             marketChoice = Integer.parseInt(reader.readLine());
-                                            System.out.println("Option chosen: " + marketChoice);
                                             readFile();
                                             switch (marketChoice) {
                                                 case 1:
-                                                    System.out.println("add one to cart");
                                                     if (productOfChoice.getQuantity() >= 1) {
                                                         current.addToShoppingCart(productOfChoice, 1);
                                                         productOfChoice.setInShoppingCart(productOfChoice.getInShoppingCart() + 1);
-                                                        System.out.println(productOfChoice.getName() + " transaction finished");
                                                     } else {
-                                                        System.out.println("quantity was less than 1, could not add to cart");
-
                                                     }
                                                     break;
                                                 case 0:
-                                                    System.out.println("purchase now");
                                                     int quantity = Integer.parseInt(reader.readLine());
                                                     if (productOfChoice.getQuantity() >= quantity) {
                                                         productsList.get(prodIndex).setQuantity(productOfChoice.getQuantity() - quantity);
@@ -857,10 +811,8 @@ public class marketServer implements Runnable {
                                                         writer.println("ERROR");
                                                         writer.flush();
                                                     }
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                                 default:
-                                                    System.out.println(productOfChoice.getName() + " transaction finished");
                                                     break;
                                             }
                                         } else if (marketChoice == productsList.size() + 2) {
@@ -876,7 +828,6 @@ public class marketServer implements Runnable {
                                         for (String pastPurchases : current.getPastPurchase()) {
                                             writer.println(pastPurchases.split(",")[0]);
                                             writer.flush();
-                                            System.out.println(pastPurchases);
                                         }
                                         writer.println("END");
                                         writer.flush();
@@ -890,7 +841,6 @@ public class marketServer implements Runnable {
                                         for (Products cartItem : current.getShoppingCart()) {
                                             oos.writeObject(cartItem);
                                             oos.flush();
-                                            System.out.println(cartItem.getName());
                                         }
                                         oos.writeObject("END");
                                         oos.flush();
@@ -925,7 +875,6 @@ public class marketServer implements Runnable {
                                          * **/
                                         readFile();
                                         if (!current.getShoppingCart().isEmpty()) {
-                                            System.out.println("Q: " + productsList.get(0).getQuantity());
                                             switch (Integer.parseInt(reader.readLine())) {
                                                 case 1:
                                                     synchronized (gateKeeper) {
@@ -947,14 +896,12 @@ public class marketServer implements Runnable {
                                                                 writer.println(cartItem.getName());
                                                                 writer.flush();
                                                             }
-                                                            System.out.println(cartItem);
                                                         }
                                                         //The following for loop solved our forever-loop problem, removes every item from shopping cart instead of just the ones that were bought
                                                         for(int i = 0; i < current.getShoppingCart().size(); i++) {
                                                             current.removeFromShoppingCart(current.getShoppingCart().get(0));
                                                         }
                                                     }
-                                                    System.out.println("Q: " + productsList.get(0).getQuantity());
                                                     writer.println("SUCCESS");
                                                     writer.flush();
                                                     customersList.set(indexUser, current);
@@ -985,13 +932,10 @@ public class marketServer implements Runnable {
                                                 case 2:
                                                     try {
                                                         int indexNo = Integer.parseInt(reader.readLine()) - 1;
-                                                        System.out.println("recieved " + indexNo);
                                                         if (indexNo != -1) {
-                                                            System.out.println(current.getShoppingCart().get(indexNo));
                                                             current.removeFromShoppingCart(current.getShoppingCart().get(indexNo));
                                                         }
                                                     } catch (Exception e) {
-                                                        System.out.println("caught an exception");
                                                         break;
                                                     }
                                                     customersList.set(indexUser, current);
@@ -1055,7 +999,6 @@ public class marketServer implements Runnable {
                                     case 1:
                                         String name = reader.readLine();
                                         current.setName(name);
-                                        System.out.println("set name to " + name);
                                         editAcc = false;
                                         break;
                                     case 2:
@@ -1099,17 +1042,13 @@ public class marketServer implements Runnable {
                              * 4. Remove booth
                              * 5. Go back
                              * **/
-                            System.out.println("FARMERS MARKET");
                             boolean marketMenu = true;
                             do {
-                                System.out.println("RUNNING FM SCREEN");
                                 readFile();
                                 current = readFileRefresh(current);
                                 int farmersMarketDecision = Integer.parseInt(reader.readLine());
-                                System.out.println("market decision -- "+farmersMarketDecision);
                                 switch (farmersMarketDecision) {
                                     case 1: //1. View booths
-                                        System.out.println("view booths");
                                         for (Store storeInList : current.getStore()) {
                                             if (!storeInList.getName().equals("Dummy")) {
                                                 writer.println(storeInList.getName());
@@ -1120,7 +1059,6 @@ public class marketServer implements Runnable {
                                         writer.flush();
 
                                         if (current.getStore().isEmpty() || current.getStore() == null) {
-                                            System.out.println("no stores");
                                             writer.println("NO STORES");
                                             writer.flush();
                                             break;
@@ -1143,9 +1081,7 @@ public class marketServer implements Runnable {
                                          * 8. Go back
                                          * **/
                                         boolean boothmenu = true;
-                                        System.out.println("into booth");
                                         do {
-                                            System.out.println("running booth");
                                             readFile();
                                             current = readFileRefresh(current);
                                             currentStore = current.getStore().get(storeInt);
@@ -1169,7 +1105,6 @@ public class marketServer implements Runnable {
                                                         if (newProduct.equals("END OF PRODUCT")) {
                                                             productImport = false;
                                                         } else {    //product in %s;;%s;;%s;;%d;;%.2f format
-                                                            System.out.println(newProduct);
                                                             currentStore.addGoods(new Products(newProduct, 0,
                                                                     0, "Description", 0,
                                                                     currentStore.getName(), 0));
@@ -1254,9 +1189,6 @@ public class marketServer implements Runnable {
                                                         writer.println("NO");
                                                         writer.flush();
                                                     }
-                                                    for (Products product : currentStore.goods){
-                                                        System.out.println(product.toString());
-                                                    }
                                                     writeFile();
                                                     break;
                                                 //expects:
@@ -1285,7 +1217,6 @@ public class marketServer implements Runnable {
                                                 case 8 :    //8. Go back
                                                     boothmenu = false;
                                                     mainmenu = true;
-                                                    System.out.println("Out of booth");
                                                     break;
                                             }
                                         } while(boothmenu);
@@ -1308,7 +1239,6 @@ public class marketServer implements Runnable {
                                                     writer.println(store.getName());
                                                     writer.flush();
                                                 }
-                                                System.out.println(store.getName());
                                             }
                                             writer.println("END");
                                             writer.flush();
@@ -1368,7 +1298,6 @@ public class marketServer implements Runnable {
                                      * **/
                                     case 5: //5. Go back
                                         marketMenu = false;
-                                        System.out.println("Back to main");
                                         break;
 
                                 }
@@ -1416,7 +1345,7 @@ public class marketServer implements Runnable {
         }
         return (currentSeller);
     }
-    
+
     public static void customerListRefresh(Products productOfchoice, Customer currentUser) {
         boolean isPresent = false;
         int storeIndex = 0;
