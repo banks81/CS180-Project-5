@@ -16,10 +16,15 @@ Aaron Banks - Submitted Vocareum workspace.
 
 ### marketServer
 
-The marketServer class contains the main method which creates a new server thread when a new connection with a client is established. Within the run method of the server thread, the program communicates with the client to provide and manipulate data as requested. Data is read from and written to the StoreList.txt and UsersList.txt files as the program runs to allow for the most recent information to be sent to the client. 
+The marketServer class contains the main method which creates a new server thread when a new connection with a client is established. Within the run method of the server thread, the program communicates with the client to first verify provided account data with existing data read from the UserList.txt file. The data, or an error message if applicable, is sent back to the client. It should be noted that all data is stored server-side and is sent to the client when appropriate. 
+
+Data is read from and written to the StoreList.txt and UsersList.txt files as the program runs to allow for the most recent information to be sent to the client. 
 
 
 ### marketClientGUI
+
+The marketClientGUI class displays the client GUI to the user. First, the user is prompted to log in or create an account. The information is sent to the server, and this class updates the GUI corresponding to the response from the server. Once logged in, the user is able to view/edit their account regardless of their instance as a Customer or Seller. While both types of users are able to view the market, their options once they choose to view it are different. In order to exit the program, the user has to select "quit program" on this main menu. Every other page contains a back button to return to the previous page and eventually the main menu. Once selecting to view the market if the user is a customer, they are able to view the products available, search for a product, sort the products by price, sort the products by quantity, view their purchase history, and view their shopping cart. Upon viewing a product, the customer is able to purchase now or add to their shopping cart. If the user is a seller and chooses to view the market
+
 
 
 
@@ -40,8 +45,6 @@ The Market class was tested in TestOne.java, TestTwo.java, and TestThree.java. T
 ### User
 
 The User class serves as a superclass to the Customer and Seller classes. This was to eliminate the repetition of code between the two subclasses, because both Sellers and Customers must have names, emails, and passwords within our implementation. The User class contains all of this information for any instance of a Customer or Seller.
-
-The User class is not directly tested, but because the Market class contains instances of its two subclasses, Seller and Customer, and the functionality of the program relies on its correct function, it was indirectly tested through our test cases run on the Market, Seller, and Customer classes. 
 
 
 
